@@ -2,6 +2,7 @@ package com.orderingsystem.orderingsystem.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class Receipts {
     private Float total;
 
     @Column(nullable = false)
+    @CreationTimestamp
     private LocalDateTime dateCreate;
 
     private String note;
@@ -28,6 +30,6 @@ public class Receipts {
     @Column(nullable = false, columnDefinition = "TINYINT DEFAULT 1")
     private Byte status;
 
-    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ReceiptDetails> details = new ArrayList<>();
 }

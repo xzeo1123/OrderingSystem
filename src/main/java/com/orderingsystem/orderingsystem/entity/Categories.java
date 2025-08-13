@@ -3,6 +3,9 @@ package com.orderingsystem.orderingsystem.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "categories")
 @Data
@@ -21,4 +24,7 @@ public class Categories {
 
     @Column(nullable = false, columnDefinition = "TINYINT DEFAULT 1")
     private Byte status;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Products> products = new ArrayList<>();
 }

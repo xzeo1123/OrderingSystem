@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "bills")
@@ -27,11 +29,14 @@ public class Bills {
     @Column(nullable = false, columnDefinition = "TINYINT DEFAULT 1")
     private Byte status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private Users user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "table_id")
     private Tables table;
+
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BillDetails> details = new ArrayList<>();
 }

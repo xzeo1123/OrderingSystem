@@ -13,12 +13,12 @@ public class ReceiptDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "receipt_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receipt_id", nullable = false)
     private Receipts receipt;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
     private Products product;
 
     @Column(nullable = false)

@@ -4,7 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "receipt_details")
+@Table(
+        name = "receipt_details",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"receipt_id", "product_id"})
+        }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,7 +22,7 @@ public class ReceiptDetails {
     @JoinColumn(name = "receipt_id", nullable = false)
     private Receipts receipt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Products product;
 

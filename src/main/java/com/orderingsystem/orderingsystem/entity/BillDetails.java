@@ -1,11 +1,15 @@
 package com.orderingsystem.orderingsystem.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
-@Table(name = "bill_details")
+@Table(
+    name = "bill_details",
+    uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"bill_id", "product_id"})
+    }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,11 +22,10 @@ public class BillDetails {
     @JoinColumn(name = "bill_id", nullable = false)
     private Bills bill;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Products product;
 
     @Column(nullable = false)
     private Integer quantity;
 }
-

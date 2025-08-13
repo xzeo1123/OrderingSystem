@@ -3,6 +3,9 @@ package com.orderingsystem.orderingsystem.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "products")
 @Data
@@ -34,7 +37,14 @@ public class Products {
     @Column(nullable = false, columnDefinition = "TINYINT DEFAULT 1")
     private Byte status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Categories category;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BillDetails> billDetails = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReceiptDetails> receiptDetails = new ArrayList<>();
 }
+

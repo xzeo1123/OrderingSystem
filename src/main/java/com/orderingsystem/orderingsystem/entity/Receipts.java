@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "receipts")
@@ -25,4 +27,7 @@ public class Receipts {
 
     @Column(nullable = false, columnDefinition = "TINYINT DEFAULT 1")
     private Byte status;
+
+    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReceiptDetails> details = new ArrayList<>();
 }

@@ -1,14 +1,20 @@
 package com.orderingsystem.orderingsystem.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
 @Table(
-    name = "bill_details",
-    uniqueConstraints = {
-            @UniqueConstraint(columnNames = {"bill_id", "product_id"})
-    }
+        name = "bill_details",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"bill_id", "product_id"})
+        },
+        indexes = {
+                @Index(name = "idx_billdetail_bill", columnList = "bill_id"),
+                @Index(name = "idx_billdetail_product", columnList = "product_id")
+        }
 )
 @Data
 @NoArgsConstructor
@@ -26,6 +32,8 @@ public class BillDetails {
     @JoinColumn(name = "product_id", nullable = false)
     private Products product;
 
+    @NotNull
+    @Min(1)
     @Column(nullable = false)
     private Integer quantity;
 }

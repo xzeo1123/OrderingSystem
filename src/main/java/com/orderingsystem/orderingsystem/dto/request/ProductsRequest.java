@@ -21,19 +21,20 @@ public class ProductsRequest {
     private String imageId;
 
     @NotNull(message = "Import price cannot be empty")
-    @Min(value = 0, message = "Import price must be greater than or equal to 0")
+    @Min(value = 0, message = "Import Price cannot be lower than 0")
     private BigDecimal importPrice;
 
     @NotNull(message = "Sale price cannot be empty")
-    @Min(value = 0, message = "Sale price must be greater than or equal to 0")
+    @Min(value = 0, message = "Sale Price cannot be lower than 0")
     private BigDecimal salePrice;
 
     @NotNull(message = "Quantity cannot be empty")
-    @Min(value = 0, message = "Quantity must be greater than or equal to 0")
+    @Min(value = 0, message = "Quantity cannot be lower than 0")
     private Integer quantity;
 
     private Status status;
 
-    @NotNull(message = "Category id cannot be empty")
+    @NotNull(message = "Category ID cannot be empty")
+    @Min(value = 1, message = "Category ID cannot be lower than 0")
     private Integer categoryId;
 }

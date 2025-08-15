@@ -3,9 +3,11 @@ package com.orderingsystem.orderingsystem.service.impl;
 import com.orderingsystem.orderingsystem.dto.request.UsersRequest;
 import com.orderingsystem.orderingsystem.dto.response.UsersResponse;
 import com.orderingsystem.orderingsystem.entity.Bills;
+import com.orderingsystem.orderingsystem.entity.Status;
 import com.orderingsystem.orderingsystem.entity.Users;
 import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
+import com.orderingsystem.orderingsystem.mapping.UsersMapper;
 import com.orderingsystem.orderingsystem.repository.BillsRepository;
 import com.orderingsystem.orderingsystem.repository.UsersRepository;
 import com.orderingsystem.orderingsystem.service.UsersService;
@@ -25,22 +27,21 @@ public class UsersServiceImpl implements UsersService {
     private final UsersRepository usersRepository;
     private final BillsRepository billsRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UsersMapper usersMapper;
 
     /* ---------- CREATE ---------- */
     @Override
     public UsersResponse createUser(UsersRequest request) {
-        request.setStatus((byte) 1);
+        request.setStatus(Status.ACTIVE);
         request.setPoint(0);
 
         validate(request, false);
 
-        Users user = new Users();
+        Users user = usersMapper.toEntity(request);
         user.setUsername(request.getUsername().trim());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setPoint(request.getPoint());
-        user.setStatus(request.getStatus());
 
-        return toResponse(usersRepository.save(user));
+        return usersMapper.toResponse(usersRepository.save(user));
     }
 
     /* ---------- UPDATE ---------- */
@@ -62,7 +63,7 @@ public class UsersServiceImpl implements UsersService {
         user.setPoint(request.getPoint());
         user.setStatus(request.getStatus());
 
-        return toResponse(usersRepository.save(user));
+        return usersMapper.toResponse(usersRepository.save(user));
     }
 
     /* ---------- SOFT DELETE ---------- */
@@ -75,9 +76,9 @@ public class UsersServiceImpl implements UsersService {
         Users user = usersRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User " + id + " not found"));
 
-        user.setStatus((byte)0);
+        user.setStatus(Status.INACTIVE);
 
-        return toResponse(usersRepository.save(user));
+        return usersMapper.toResponse(usersRepository.save(user));
     }
 
     /* ---------- DELETE ---------- */
@@ -105,14 +106,14 @@ public class UsersServiceImpl implements UsersService {
     public UsersResponse getUserById(Integer id) {
         Users user = usersRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
-        return toResponse(user);
+        return usersMapper.toResponse(user);
     }
 
     @Override
     public List<UsersResponse> getAllUsers() {
         return usersRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(usersMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -125,19 +126,10 @@ public class UsersServiceImpl implements UsersService {
             throw new BusinessRuleException("Username already exists");
         }
         if (request.getPoint() == null || request.getPoint() < 0) {
-            throw new BusinessRuleException("Point must be a non‑negative number");
+            throw new BusinessRuleException("Point must be a non-negative number");
         }
-        if (request.getStatus() != 0 && request.getStatus() != 1) {
-            throw new BusinessRuleException("Status must be 0 (inactive) or 1 (active)");
+        if (request.getStatus() == null) {
+            throw new BusinessRuleException("Status must not be null");
         }
-    }
-
-    private UsersResponse toResponse(Users user) {
-        return UsersResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .point(user.getPoint())
-                .status(user.getStatus())
-                .build();
     }
 }

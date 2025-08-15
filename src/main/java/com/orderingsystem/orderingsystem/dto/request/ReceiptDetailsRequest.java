@@ -7,13 +7,15 @@ import lombok.Data;
 @Data
 public class ReceiptDetailsRequest {
 
-    @NotNull(message = "Receipt id cannot be empty")
+    @NotNull(message = "Receipt ID cannot be empty")
+    @Min(value = 1, message = "Receipt ID cannot be lower than 1")
     private Integer receiptId;
 
-    @NotNull(message = "Product id cannot be empty")
+    @NotNull(message = "Product ID cannot be empty")
+    @Min(value = 1, message = "Product ID cannot be lower than 1")
     private Integer productId;
 
     @NotNull(message = "Quantity cannot be empty")
-    @Min(value = 1, message = "Quantity must be at least 1")
+    @Min(value = 1, message = "Quantity cannot be lower than 1")
     private Integer quantity;
 }

@@ -11,6 +11,9 @@ import java.util.List;
 @Entity
 @Table(
     name = "tables",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"number"})
+    },
     indexes = {
         @Index(name = "idx_table_number", columnList = "number")
     }
@@ -23,9 +26,9 @@ public class Tables {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull
-    @Min(1)
-    @Column(nullable = false, unique = true)
+    @NotNull(message = "Number cannot be empty")
+    @Min(value = 1, message = "Total cannot be lower than 1")
+    @Column(nullable = false)
     private Integer number;
 
     @Enumerated(EnumType.STRING)

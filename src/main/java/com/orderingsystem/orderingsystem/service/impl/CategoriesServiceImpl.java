@@ -4,8 +4,10 @@ import com.orderingsystem.orderingsystem.dto.request.CategoriesRequest;
 import com.orderingsystem.orderingsystem.dto.response.CategoriesResponse;
 import com.orderingsystem.orderingsystem.entity.Categories;
 import com.orderingsystem.orderingsystem.entity.Products;
+import com.orderingsystem.orderingsystem.entity.Status;
 import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
+import com.orderingsystem.orderingsystem.mapping.CategoriesMapper;
 import com.orderingsystem.orderingsystem.repository.CategoriesRepository;
 import com.orderingsystem.orderingsystem.repository.ProductsRepository;
 import com.orderingsystem.orderingsystem.service.CategoriesService;
@@ -23,20 +25,16 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     private final CategoriesRepository categoriesRepository;
     private final ProductsRepository productsRepository;
+    private final CategoriesMapper categoriesMapper;
 
     /* ---------- CREATE ---------- */
     @Override
     public CategoriesResponse createCategory(CategoriesRequest request) {
-        request.setStatus((byte)1);
-
+        request.setStatus(Status.ACTIVE);
         validate(request);
 
-        Categories category = new Categories();
-        category.setName(request.getName());
-        category.setStatus(request.getStatus());
-        category.setDescription(request.getDescription());
-
-        return toResponse(categoriesRepository.save(category));
+        Categories category = categoriesMapper.toEntity(request);
+        return categoriesMapper.toResponse(categoriesRepository.save(category));
     }
 
     /* ---------- UPDATE ---------- */
@@ -55,7 +53,7 @@ public class CategoriesServiceImpl implements CategoriesService {
         category.setDescription(request.getDescription());
         category.setStatus(request.getStatus());
 
-        return toResponse(categoriesRepository.save(category));
+        return categoriesMapper.toResponse(categoriesRepository.save(category));
     }
 
     /* ---------- SOFT DELETE ---------- */
@@ -68,9 +66,9 @@ public class CategoriesServiceImpl implements CategoriesService {
         Categories category = categoriesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category " + id + " not found"));
 
-        category.setStatus((byte)0);
+        category.setStatus(Status.INACTIVE);
 
-        return toResponse(categoriesRepository.save(category));
+        return categoriesMapper.toResponse(categoriesRepository.save(category));
     }
 
     /* ---------- DELETE ---------- */
@@ -98,33 +96,24 @@ public class CategoriesServiceImpl implements CategoriesService {
     public CategoriesResponse getCategoryById(Integer id) {
         Categories category = categoriesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category with id " + id + " not found"));
-        return toResponse(category);
+        return categoriesMapper.toResponse(category);
     }
 
     @Override
     public List<CategoriesResponse> getAllCategories() {
         return categoriesRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(categoriesMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     /* ---------- PRIVATE HELPERS ---------- */
     private void validate(CategoriesRequest request) {
-        if (request.getStatus() != 0 && request.getStatus() != 1) {
-            throw new BusinessRuleException("Status must be 0 (inactive) or 1 (active)");
+        if (request.getStatus() != Status.ACTIVE && request.getStatus() != Status.INACTIVE) {
+            throw new BusinessRuleException("Status must be ACTIVE or INACTIVE");
         }
         if (categoriesRepository.existsByName(request.getName().trim())) {
             throw new BusinessRuleException("Category name already exists");
         }
-    }
-
-    private CategoriesResponse toResponse(Categories category) {
-        return CategoriesResponse.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .description(category.getDescription())
-                .status(category.getStatus())
-                .build();
     }
 }

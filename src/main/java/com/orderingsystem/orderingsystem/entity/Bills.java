@@ -28,16 +28,16 @@ public class Bills {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull
-    @Min(0)
-    @Column(nullable = false)
+    @NotNull(message = "Total cannot be empty")
+    @Min(value = 0, message = "Total cannot be lower than 0")
+    @Column(nullable = false, columnDefinition = "DECIMAL(15,2) DEFAULT 0")
     private BigDecimal total;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime dateCreate;
 
-    @NotBlank
+    @NotBlank(message = "Note cannot be empty")
     @Column(nullable = false)
     private String note;
 
@@ -45,11 +45,11 @@ public class Bills {
     @Column(nullable = false, length = 10)
     private Status status = Status.ACTIVE;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "table_id", nullable = false)
     private Tables table;
 

@@ -8,8 +8,8 @@ import lombok.Data;
 @Data
 public class TablesRequest {
 
-    @NotNull(message = "Table number cannot be empty")
-    @Min(value = 1, message = "Table number must be at least 1")
+    @NotNull(message = "Number cannot be empty")
+    @Min(value = 1, message = "Number cannot be lower than 1")
     private Integer number;
 
     private Status status;

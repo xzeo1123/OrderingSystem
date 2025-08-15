@@ -25,11 +25,11 @@ public class Categories {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotBlank
+    @NotBlank(message = "Name cannot be empty")
     @Column(nullable = false)
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "Description cannot be empty")
     @Column(nullable = false)
     private String description;
 

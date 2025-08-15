@@ -5,6 +5,7 @@ import com.orderingsystem.orderingsystem.dto.response.BillsResponse;
 import com.orderingsystem.orderingsystem.entity.*;
 import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
+import com.orderingsystem.orderingsystem.mapping.BillsMapper;
 import com.orderingsystem.orderingsystem.repository.BillDetailsRepository;
 import com.orderingsystem.orderingsystem.repository.BillsRepository;
 import com.orderingsystem.orderingsystem.repository.TablesRepository;
@@ -28,6 +29,7 @@ public class BillsServiceImpl implements BillsService {
     private final UsersRepository usersRepository;
     private final TablesRepository tablesRepository;
     private final BillDetailsRepository billDetailsRepository;
+    private final BillsMapper billsMapper;
 
     /* ---------- CREATE ---------- */
     @Override
@@ -39,27 +41,20 @@ public class BillsServiceImpl implements BillsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Table with id " + request.getTableId() + " not found"));
 
         request.setDateCreate(LocalDateTime.now());
-        request.setStatus((byte) 1);
+        request.setStatus(Status.ACTIVE);
 
         validate(request);
 
-        Bills bill = new Bills();
-        bill.setTotal(request.getTotal());
-        bill.setDateCreate(request.getDateCreate());
-        bill.setNote(request.getNote());
-        bill.setStatus((request.getStatus()));
-        bill.setUser(user);
-        bill.setTable(table);
-
+        Bills bill = billsMapper.toEntity(request, user, table);
         Bills savedBill = billsRepository.save(bill);
 
         if (!user.getId().equals(1)) {
-            int pointToAdd = (int) (request.getTotal() * 0.1);
+            int pointToAdd = savedBill.getTotal().multiply(BigDecimal.valueOf(0.1)).intValue();
             user.setPoint(user.getPoint() + pointToAdd);
             usersRepository.save(user);
         }
 
-        return toResponse(savedBill);
+        return billsMapper.toResponse(savedBill);
     }
 
     /* ---------- UPDATE ---------- */
@@ -87,7 +82,7 @@ public class BillsServiceImpl implements BillsService {
         bill.setUser(user);
         bill.setTable(table);
 
-        return toResponse(billsRepository.save(bill));
+        return billsMapper.toResponse(billsRepository.save(bill));
     }
 
     /* ---------- SOFT DELETE ---------- */
@@ -100,9 +95,9 @@ public class BillsServiceImpl implements BillsService {
         Bills bill = billsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill " + id + " not found"));
 
-        bill.setStatus((byte)0);
+        bill.setStatus(Status.INACTIVE);
 
-        return toResponse(billsRepository.save(bill));
+        return billsMapper.toResponse(billsRepository.save(bill));
     }
 
     /* ---------- DELETE ---------- */
@@ -130,36 +125,24 @@ public class BillsServiceImpl implements BillsService {
     public BillsResponse getBillById(Integer id) {
         Bills bill = billsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill with id " + id + " not found"));
-        return toResponse(bill);
+        return billsMapper.toResponse(bill);
     }
 
     @Override
     public List<BillsResponse> getAllBills() {
         return billsRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(billsMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     /* ---------- PRIVATE HELPERS ---------- */
     private void validate(BillsRequest request) {
-        if (request.getTotal() == null || request.getTotal().compareTo(BigDecimal.ZERO.floatValue()) < 0) {
+        if (request.getTotal() == null || request.getTotal().compareTo(BigDecimal.ZERO) < 0) {
             throw new BusinessRuleException("Total must be a non-negative value");
         }
-        if (request.getStatus() != 0 && request.getStatus() != 1) {
-            throw new BusinessRuleException("Status must be 0 (unactive) or 1 (active)");
+        if (request.getStatus() != Status.ACTIVE && request.getStatus() != Status.INACTIVE) {
+            throw new BusinessRuleException("Status must be ACTIVE or UNACTIVE");
         }
-    }
-
-    private BillsResponse toResponse(Bills bill) {
-        return BillsResponse.builder()
-                .id(bill.getId())
-                .total(bill.getTotal())
-                .dateCreate(bill.getDateCreate())
-                .note(bill.getNote())
-                .status(bill.getStatus())
-                .userId(bill.getUser().getId())
-                .tableId(bill.getTable().getId())
-                .build();
     }
 }

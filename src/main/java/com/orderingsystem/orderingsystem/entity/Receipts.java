@@ -27,16 +27,16 @@ public class Receipts {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull
-    @Min(0)
-    @Column(nullable = false)
+    @NotNull(message = "Total cannot be empty")
+    @Min(value = 0, message = "Total cannot be lower than 0")
+    @Column(nullable = false, columnDefinition = "DECIMAL(15,2) DEFAULT 0")
     private BigDecimal total;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime dateCreate;
 
-    @NotBlank
+    @NotBlank(message = "Note cannot be empty")
     @Column(nullable = false)
     private String note;
 

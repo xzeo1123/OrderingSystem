@@ -9,35 +9,31 @@ import java.time.Instant;
 public class ResponseHelper {
 
     /* ---------- 200 OK ---------- */
-
     public static <T> ResponseEntity<ApiResponse<T>> ok(T data, String message) {
-        return build(HttpStatus.OK, data, message);
+        return build(HttpStatus.OK, true, data, message);
     }
 
     /* ---------- 201 Created ---------- */
-
     public static <T> ResponseEntity<ApiResponse<T>> created(T data, String message) {
-        return build(HttpStatus.CREATED, data, message);
+        return build(HttpStatus.CREATED, true, data, message);
     }
 
-    /* ---------- 204 No Content (logic “đã xoá”) ---------- */
-
+    /* ---------- 204 No Content ---------- */
     public static ResponseEntity<ApiResponse<Void>> deleted(String message) {
-        return build(HttpStatus.OK, null, message);
+        return build(HttpStatus.NO_CONTENT, true, null, message);
     }
 
     /* ---------- Page Support ---------- */
-
     public static <T> ResponseEntity<ApiResponse<Page<T>>> paged(Page<T> page, String message) {
-        return build(HttpStatus.OK, page, message);
+        return build(HttpStatus.OK, true, page, message);
     }
 
     /* ---------- Core builder ---------- */
-
-    private static <T> ResponseEntity<ApiResponse<T>> build(HttpStatus status, T data, String message) {
+    private static <T> ResponseEntity<ApiResponse<T>> build(HttpStatus status, boolean success, T data, String message) {
         ApiResponse<T> body = ApiResponse.<T>builder()
                 .timestamp(Instant.now())
                 .status(status.value())
+                .success(success)
                 .message(message)
                 .data(data)
                 .build();

@@ -7,16 +7,17 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(
-        name = "receipts",
-        indexes = {
-                @Index(name = "idx_receipt_date", columnList = "dateCreate")
-        }
+    name = "receipts",
+    indexes = {
+        @Index(name = "idx_receipt_date", columnList = "dateCreate")
+    }
 )
 @Data
 @NoArgsConstructor
@@ -29,7 +30,7 @@ public class Receipts {
     @NotNull
     @Min(0)
     @Column(nullable = false)
-    private Float total;
+    private BigDecimal total;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

@@ -10,8 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BillDetailsResponse {
+
     private Integer id;
+
     private Integer billId;
+
     private Integer productId;
+
     private Integer quantity;
 }

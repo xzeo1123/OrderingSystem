@@ -4,8 +4,10 @@ import com.orderingsystem.orderingsystem.dto.request.ReceiptsRequest;
 import com.orderingsystem.orderingsystem.dto.response.ReceiptsResponse;
 import com.orderingsystem.orderingsystem.entity.ReceiptDetails;
 import com.orderingsystem.orderingsystem.entity.Receipts;
+import com.orderingsystem.orderingsystem.entity.Status;
 import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
+import com.orderingsystem.orderingsystem.mapping.ReceiptsMapper;
 import com.orderingsystem.orderingsystem.repository.ReceiptDetailsRepository;
 import com.orderingsystem.orderingsystem.repository.ReceiptsRepository;
 import com.orderingsystem.orderingsystem.service.ReceiptsService;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,22 +26,19 @@ public class ReceiptsServiceImpl implements ReceiptsService {
 
     private final ReceiptsRepository receiptsRepository;
     private final ReceiptDetailsRepository receiptDetailsRepository;
+    private final ReceiptsMapper receiptMapper;
 
     /* ---------- CREATE ---------- */
     @Override
     public ReceiptsResponse createReceipt(ReceiptsRequest request) {
-        request.setDateCreate(LocalDateTime.now());
-        request.setStatus((byte) 1);
+        if (request.getStatus() == null) {
+            request.setStatus(Status.ACTIVE);
+        }
 
         validate(request);
 
-        Receipts receipt = new Receipts();
-        receipt.setTotal(request.getTotal());
-        receipt.setDateCreate(request.getDateCreate());
-        receipt.setNote(request.getNote());
-        receipt.setStatus(request.getStatus());
-
-        return toResponse(receiptsRepository.save(receipt));
+        Receipts receipt = receiptMapper.toEntity(request);
+        return receiptMapper.toResponse(receiptsRepository.save(receipt));
     }
 
     /* ---------- UPDATE ---------- */
@@ -50,17 +48,17 @@ public class ReceiptsServiceImpl implements ReceiptsService {
             throw new RuntimeException("Cannot update this receipt (ID = 1)");
         }
 
-        Receipts receipt = receiptsRepository.findById(id)
+        Receipts existing = receiptsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Receipt with id " + id + " not found"));
 
         validate(request);
 
-        receipt.setTotal(request.getTotal());
-        receipt.setDateCreate(request.getDateCreate());
-        receipt.setNote(request.getNote());
-        receipt.setStatus(request.getStatus());
+        Receipts updated = receiptMapper.toEntity(request);
+        updated.setId(existing.getId());
+        updated.setDateCreate(existing.getDateCreate());
+        updated.setDetails(existing.getDetails());
 
-        return toResponse(receiptsRepository.save(receipt));
+        return receiptMapper.toResponse(receiptsRepository.save(updated));
     }
 
     /* ---------- SOFT DELETE ---------- */
@@ -73,9 +71,9 @@ public class ReceiptsServiceImpl implements ReceiptsService {
         Receipts receipt = receiptsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Receipt " + id + " not found"));
 
-        receipt.setStatus((byte) 0);
+        receipt.setStatus(Status.INACTIVE);
 
-        return toResponse(receiptsRepository.save(receipt));
+        return receiptMapper.toResponse(receiptsRepository.save(receipt));
     }
 
     /* ---------- DELETE ---------- */
@@ -103,34 +101,21 @@ public class ReceiptsServiceImpl implements ReceiptsService {
     public ReceiptsResponse getReceiptById(Integer id) {
         Receipts receipt = receiptsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Receipt with id " + id + " not found"));
-        return toResponse(receipt);
+        return receiptMapper.toResponse(receipt);
     }
 
     @Override
     public List<ReceiptsResponse> getAllReceipts() {
         return receiptsRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(receiptMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     /* ---------- PRIVATE HELPERS ---------- */
     private void validate(ReceiptsRequest request) {
-        if (request.getTotal() == null || request.getTotal().compareTo(BigDecimal.ZERO.floatValue()) < 0) {
-            throw new BusinessRuleException("Total must be a non‑negative value");
+        if (request.getTotal() == null || request.getTotal().compareTo(BigDecimal.ZERO) < 0) {
+            throw new BusinessRuleException("Total must be a non-negative value");
         }
-        if (request.getStatus() != 0 && request.getStatus() != 1) {
-            throw new BusinessRuleException("Status must be 0 (inactive) or 1 (active)");
-        }
-    }
-
-    private ReceiptsResponse toResponse(Receipts receipt) {
-        return ReceiptsResponse.builder()
-                .id(receipt.getId())
-                .total(receipt.getTotal())
-                .dateCreate(receipt.getDateCreate())
-                .note(receipt.getNote())
-                .status(receipt.getStatus())
-                .build();
     }
 }

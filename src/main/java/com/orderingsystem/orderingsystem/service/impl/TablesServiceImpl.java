@@ -3,9 +3,11 @@ package com.orderingsystem.orderingsystem.service.impl;
 import com.orderingsystem.orderingsystem.dto.request.TablesRequest;
 import com.orderingsystem.orderingsystem.dto.response.TablesResponse;
 import com.orderingsystem.orderingsystem.entity.Bills;
+import com.orderingsystem.orderingsystem.entity.Status;
 import com.orderingsystem.orderingsystem.entity.Tables;
 import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
+import com.orderingsystem.orderingsystem.mapping.TablesMapper;
 import com.orderingsystem.orderingsystem.repository.BillsRepository;
 import com.orderingsystem.orderingsystem.repository.TablesRepository;
 import com.orderingsystem.orderingsystem.service.TablesService;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,11 +24,12 @@ public class TablesServiceImpl implements TablesService {
 
     private final TablesRepository tablesRepository;
     private final BillsRepository billsRepository;
+    private final TablesMapper tablesMapper;
 
     /* ---------- CREATE ---------- */
     @Override
     public TablesResponse createTable(TablesRequest request) {
-        request.setStatus((byte)1);
+        request.setStatus(Status.ACTIVE);
 
         validate(request);
 
@@ -35,11 +37,8 @@ public class TablesServiceImpl implements TablesService {
             throw new BusinessRuleException("Table number already exists");
         }
 
-        Tables table = new Tables();
-        table.setNumber(request.getNumber());
-        table.setStatus((request.getStatus()));
-
-        return toResponse(tablesRepository.save(table));
+        Tables table = tablesMapper.toEntity(request);
+        return tablesMapper.toResponse(tablesRepository.save(table));
     }
 
     /* ---------- UPDATE ---------- */
@@ -49,7 +48,7 @@ public class TablesServiceImpl implements TablesService {
             throw new RuntimeException("Cannot update this table (ID = 1)");
         }
 
-        Tables table = tablesRepository.findById(id)
+        Tables existingTable = tablesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Table with id " + id + " not found"));
 
         validate(request);
@@ -58,10 +57,11 @@ public class TablesServiceImpl implements TablesService {
             throw new BusinessRuleException("Table number already exists");
         }
 
-        table.setNumber(request.getNumber());
-        table.setStatus(request.getStatus());
+        // MapStruct không overwrite toàn bộ để tránh mất dữ liệu bills
+        existingTable.setNumber(request.getNumber());
+        existingTable.setStatus(request.getStatus());
 
-        return toResponse(tablesRepository.save(table));
+        return tablesMapper.toResponse(tablesRepository.save(existingTable));
     }
 
     /* ---------- SOFT DELETE ---------- */
@@ -74,9 +74,9 @@ public class TablesServiceImpl implements TablesService {
         Tables table = tablesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Table " + id + " not found"));
 
-        table.setStatus((byte)0);
+        table.setStatus(Status.INACTIVE);
 
-        return toResponse(tablesRepository.save(table));
+        return tablesMapper.toResponse(tablesRepository.save(table));
     }
 
     /* ---------- DELETE ---------- */
@@ -104,15 +104,15 @@ public class TablesServiceImpl implements TablesService {
     public TablesResponse getTableById(Integer id) {
         Tables table = tablesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Table with id " + id + " not found"));
-        return toResponse(table);
+        return tablesMapper.toResponse(table);
     }
 
     @Override
     public List<TablesResponse> getAllTables() {
         return tablesRepository.findAll()
                 .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+                .map(tablesMapper::toResponse)
+                .toList();
     }
 
     /* ---------- PRIVATE HELPERS ---------- */
@@ -120,17 +120,8 @@ public class TablesServiceImpl implements TablesService {
         if (request.getNumber() == null || request.getNumber() <= 0) {
             throw new BusinessRuleException("Table number must be a positive integer");
         }
-        if (request.getStatus() != 0 && request.getStatus() != 1) {
-            throw new BusinessRuleException("Status must be 0 (inactive) or 1 (active)");
+        if (request.getStatus() == null) {
+            throw new BusinessRuleException("Status must be provided");
         }
-
-    }
-
-    private TablesResponse toResponse(Tables table) {
-        return TablesResponse.builder()
-                .id(table.getId())
-                .number(table.getNumber())
-                .status(table.getStatus())
-                .build();
     }
 }

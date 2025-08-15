@@ -16,7 +16,7 @@ public class CategoriesResponse {
 
     private String name;
 
-    private Status description;
+    private String description;
 
-    private Byte status;
+    private Status status;
 }

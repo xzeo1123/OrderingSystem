@@ -3,10 +3,7 @@ package com.orderingsystem.orderingsystem.service.impl;
 import com.orderingsystem.orderingsystem.config.CloudinaryProperties;
 import com.orderingsystem.orderingsystem.dto.request.ProductsRequest;
 import com.orderingsystem.orderingsystem.dto.response.ProductsResponse;
-import com.orderingsystem.orderingsystem.entity.BillDetails;
-import com.orderingsystem.orderingsystem.entity.Categories;
-import com.orderingsystem.orderingsystem.entity.Products;
-import com.orderingsystem.orderingsystem.entity.ReceiptDetails;
+import com.orderingsystem.orderingsystem.entity.*;
 import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
 import com.orderingsystem.orderingsystem.repository.BillDetailsRepository;
@@ -14,6 +11,7 @@ import com.orderingsystem.orderingsystem.repository.CategoriesRepository;
 import com.orderingsystem.orderingsystem.repository.ProductsRepository;
 import com.orderingsystem.orderingsystem.repository.ReceiptDetailsRepository;
 import com.orderingsystem.orderingsystem.service.ProductsService;
+import com.orderingsystem.orderingsystem.mapping.ProductsMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,17 +30,16 @@ public class ProductsServiceImpl implements ProductsService {
     private final ReceiptDetailsRepository receiptDetailsRepository;
     private final CloudinaryService cloudinaryService;
     private final CloudinaryProperties cloudinaryProperties;
+    private final ProductsMapper productsMapper;
 
-    /* ---------- CREATE ---------- */
     @Override
     public ProductsResponse createProduct(ProductsRequest request) {
         Categories category = categoriesRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Category with id " + request.getCategoryId() + " not found"));
 
-        request.setStatus((byte) 1);
+        request.setStatus(Status.ACTIVE);
         request.setQuantity(0);
-
         validate(request);
 
         if (request.getImageUrl() == null || request.getImageUrl().isBlank()) {
@@ -52,20 +49,12 @@ public class ProductsServiceImpl implements ProductsService {
             request.setImageId(cloudinaryProperties.getId());
         }
 
-        Products product = new Products();
-        product.setName(request.getName());
-        product.setImageUrl(request.getImageUrl());
-        product.setImageId(request.getImageId());
-        product.setImportPrice(request.getImportPrice());
-        product.setSalePrice(request.getSalePrice());
-        product.setQuantity(request.getQuantity());
-        product.setStatus(request.getStatus());
+        Products product = productsMapper.toEntity(request);
         product.setCategory(category);
 
-        return toResponse(productsRepository.save(product));
+        return productsMapper.toResponse(productsRepository.save(product));
     }
 
-    /* ---------- UPDATE ---------- */
     @Override
     public ProductsResponse updateProduct(Integer id, ProductsRequest request) {
         if (id == 1) {
@@ -99,19 +88,15 @@ public class ProductsServiceImpl implements ProductsService {
             }
         }
 
-        product.setName(request.getName());
-        product.setImageUrl(request.getImageUrl());
-        product.setImageId(request.getImageId());
-        product.setImportPrice(request.getImportPrice());
-        product.setSalePrice(request.getSalePrice());
-        product.setQuantity(request.getQuantity());
-        product.setStatus(request.getStatus());
-        product.setCategory(category);
+        Products updatedProduct = productsMapper.toEntity(request);
+        updatedProduct.setId(product.getId());
+        updatedProduct.setBillDetails(product.getBillDetails());
+        updatedProduct.setReceiptDetails(product.getReceiptDetails());
+        updatedProduct.setCategory(category);
 
-        return toResponse(productsRepository.save(product));
+        return productsMapper.toResponse(productsRepository.save(updatedProduct));
     }
 
-    /* ---------- SOFT DELETE ---------- */
     @Override
     public ProductsResponse softDeleteProduct(Integer id) {
         if (id == 1) {
@@ -121,14 +106,12 @@ public class ProductsServiceImpl implements ProductsService {
         Products product = productsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product " + id + " not found"));
 
-        product.setStatus((byte)0);
+        product.setStatus(Status.INACTIVE);
 
-        return toResponse(productsRepository.save(product));
+        return productsMapper.toResponse(productsRepository.save(product));
     }
 
-    /* ---------- DELETE ---------- */
     @Override
-    @Transactional
     public void deleteProduct(Integer id) {
         if (id == 1) {
             throw new RuntimeException("Cannot delete this product (ID = 1)");
@@ -149,7 +132,7 @@ public class ProductsServiceImpl implements ProductsService {
         }
         receiptDetailsRepository.saveAll(receiptDetailsList);
 
-        if (product.getImageId() != null && !product.getImageId().equals(cloudinaryProperties.getId())) { // ✅ KHÔNG XÓA ẢNH MẶC ĐỊNH
+        if (product.getImageId() != null && !product.getImageId().equals(cloudinaryProperties.getId())) {
             try {
                 cloudinaryService.deleteImage(product.getImageId());
             } catch (Exception e) {
@@ -160,23 +143,20 @@ public class ProductsServiceImpl implements ProductsService {
         productsRepository.delete(product);
     }
 
-    /* ---------- READ ---------- */
     @Override
     public ProductsResponse getProductById(Integer id) {
-        Products product = productsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product " + id + " not found"));
-        return toResponse(product);
+        return productsMapper.toResponse(productsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product " + id + " not found")));
     }
 
     @Override
     public List<ProductsResponse> getAllProducts() {
         return productsRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(productsMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    /* ---------- PRIVATE HELPERS ---------- */
     private void validate(ProductsRequest request) {
         if (request.getSalePrice().compareTo(request.getImportPrice()) < 0) {
             throw new BusinessRuleException("Sale price must be greater than or equal to import price");
@@ -184,21 +164,5 @@ public class ProductsServiceImpl implements ProductsService {
         if (request.getQuantity() < 0) {
             throw new BusinessRuleException("Quantity cannot be negative");
         }
-        if (request.getStatus() != 0 && request.getStatus() != 1) {
-            throw new BusinessRuleException("Status must be 0 (inactive) or 1 (active)");
-        }
-    }
-
-    private ProductsResponse toResponse(Products product) {
-        return ProductsResponse.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .imageUrl(product.getImageUrl())
-                .importPrice(product.getImportPrice())
-                .salePrice(product.getSalePrice())
-                .quantity(product.getQuantity())
-                .status(product.getStatus())
-                .categoryId(product.getCategory().getId())
-                .build();
     }
 }

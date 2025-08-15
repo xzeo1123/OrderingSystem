@@ -28,12 +28,12 @@ public class BillDetails {
     @JoinColumn(name = "bill_id", nullable = false)
     private Bills bill;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Products product;
 
-    @NotNull
-    @Min(1)
+    @NotNull(message = "Quantity cannot be empty")
+    @Min(value = 1, message = "Quantity cannot be lower than 1")
     @Column(nullable = false)
     private Integer quantity;
 }

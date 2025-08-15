@@ -1,5 +1,6 @@
 package com.orderingsystem.orderingsystem.dto.request;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.orderingsystem.orderingsystem.entity.Status;
@@ -11,9 +12,9 @@ import lombok.Data;
 @Data
 public class ReceiptsRequest {
 
-    @NotNull(message = "Total bill cannot be empty")
-    @Min(value = 0, message = "Total must be greater than or equal to 0")
-    private Float total;
+    @NotNull(message = "Total cannot be empty")
+    @Min(value = 0, message = "Total cannot be lower than 0")
+    private BigDecimal total;
 
     private LocalDateTime dateCreate;
 

@@ -1,22 +1,33 @@
 package com.orderingsystem.orderingsystem.dto.response;
 
-import java.time.LocalDateTime;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.orderingsystem.orderingsystem.entity.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class BillsResponse {
+
     private Integer id;
-    private Float total;
+
+    private BigDecimal total;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dateCreate;
+
     private String note;
-    private Byte status;
+
+    private Status status;
+
     private Integer userId;
+
     private Integer tableId;
 }

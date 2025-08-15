@@ -1,5 +1,6 @@
 package com.orderingsystem.orderingsystem.dto.response;
 
+import com.orderingsystem.orderingsystem.entity.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UsersResponse {
+
     private Integer id;
+
     private String username;
+
     private Integer point;
-    private Byte status;
+
+    private Status status;
 }

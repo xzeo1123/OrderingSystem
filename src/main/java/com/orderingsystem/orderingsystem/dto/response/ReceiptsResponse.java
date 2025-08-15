@@ -1,7 +1,9 @@
 package com.orderingsystem.orderingsystem.dto.response;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.orderingsystem.orderingsystem.entity.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +14,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReceiptsResponse {
+
     private Integer id;
-    private Float total;
+
+    private BigDecimal total;
+
     private LocalDateTime dateCreate;
+
     private String note;
-    private Byte status;
+
+    private Status status;
 }

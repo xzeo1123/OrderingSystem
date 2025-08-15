@@ -9,13 +9,13 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "categories",
-        indexes = {
-                @Index(name = "idx_category_name", columnList = "name")
-        },
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name"})
-        }
+    name = "categories",
+    indexes = {
+        @Index(name = "idx_category_name", columnList = "name")
+    },
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name"})
+    }
 )
 @Data
 @NoArgsConstructor

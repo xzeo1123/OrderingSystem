@@ -9,11 +9,18 @@ import lombok.Data;
 public class LoginRequest {
 
     @NotBlank(message = "Username cannot be empty")
-    @Size(min = 4, max = 30, message = "Username must be 4-30 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9._-]+$", message = "Username contains invalid characters")
+    @Size(min = 4, max = 30, message = "Username must be between 4 and 30 characters")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9._-]+$",
+            message = "Username contains invalid characters"
+    )
     private String username;
 
     @NotBlank(message = "Password cannot be empty")
     @Size(min = 6, message = "Password must be at least 6 characters")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9@$!%*?&]+$",
+            message = "Password contains invalid characters"
+    )
     private String password;
 }

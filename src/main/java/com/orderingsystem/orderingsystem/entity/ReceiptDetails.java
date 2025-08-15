@@ -7,14 +7,14 @@ import lombok.*;
 
 @Entity
 @Table(
-        name = "receipt_details",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"receipt_id", "product_id"})
-        },
-        indexes = {
-                @Index(name = "idx_receiptdetail_receipt", columnList = "receipt_id"),
-                @Index(name = "idx_receiptdetail_product", columnList = "product_id")
-        }
+    name = "receipt_details",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"receipt_id", "product_id"})
+    },
+    indexes = {
+        @Index(name = "idx_receiptdetail_receipt", columnList = "receipt_id"),
+        @Index(name = "idx_receiptdetail_product", columnList = "product_id")
+    }
 )
 @Data
 @NoArgsConstructor

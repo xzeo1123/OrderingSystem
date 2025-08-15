@@ -1,7 +1,7 @@
 package com.orderingsystem.orderingsystem.dto.request;
 
+import com.orderingsystem.orderingsystem.entity.Status;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -13,5 +13,5 @@ public class CategoriesRequest {
     @NotBlank(message = "Category description cannot be empty")
     private String description;
 
-    private Byte status;
+    private Status status;
 }

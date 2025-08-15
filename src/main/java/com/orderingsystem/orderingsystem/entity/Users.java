@@ -10,10 +10,10 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "users",
-        indexes = {
-                @Index(name = "idx_user_username", columnList = "username")
-        }
+    name = "users",
+    indexes = {
+        @Index(name = "idx_user_username", columnList = "username")
+    }
 )
 @Data
 @NoArgsConstructor

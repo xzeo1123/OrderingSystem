@@ -26,12 +26,11 @@ public class ProductsServiceImpl implements ProductsService {
 
     private final ProductsRepository productsRepository;
     private final CategoriesRepository categoriesRepository;
-    private final BillDetailsRepository billDetailsRepository;
-    private final ReceiptDetailsRepository receiptDetailsRepository;
     private final CloudinaryService cloudinaryService;
     private final CloudinaryProperties cloudinaryProperties;
     private final ProductsMapper productsMapper;
 
+    /* ---------- CREATE ---------- */
     @Override
     public ProductsResponse createProduct(ProductsRequest request) {
         Categories category = categoriesRepository.findById(request.getCategoryId())
@@ -40,6 +39,7 @@ public class ProductsServiceImpl implements ProductsService {
 
         request.setStatus(Status.ACTIVE);
         request.setQuantity(0);
+
         validate(request);
 
         if (request.getImageUrl() == null || request.getImageUrl().isBlank()) {
@@ -55,12 +55,9 @@ public class ProductsServiceImpl implements ProductsService {
         return productsMapper.toResponse(productsRepository.save(product));
     }
 
+    /* ---------- UPDATE ---------- */
     @Override
     public ProductsResponse updateProduct(Integer id, ProductsRequest request) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot update this product (ID = 1)");
-        }
-
         Products product = productsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product " + id + " not found"));
 
@@ -97,12 +94,9 @@ public class ProductsServiceImpl implements ProductsService {
         return productsMapper.toResponse(productsRepository.save(updatedProduct));
     }
 
+    /* ---------- DELETE ---------- */
     @Override
     public ProductsResponse softDeleteProduct(Integer id) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot soft delete this product (ID = 1)");
-        }
-
         Products product = productsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product " + id + " not found"));
 
@@ -113,24 +107,8 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public void deleteProduct(Integer id) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot delete this product (ID = 1)");
-        }
-
         Products product = productsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product " + id + " not found"));
-
-        List<BillDetails> billDetailsList = billDetailsRepository.findByProduct_Id(id);
-        for (BillDetails bd : billDetailsList) {
-            bd.setProduct(productsRepository.getReferenceById(1));
-        }
-        billDetailsRepository.saveAll(billDetailsList);
-
-        List<ReceiptDetails> receiptDetailsList = receiptDetailsRepository.findByProduct_Id(id);
-        for (ReceiptDetails rd : receiptDetailsList) {
-            rd.setProduct(productsRepository.getReferenceById(1));
-        }
-        receiptDetailsRepository.saveAll(receiptDetailsList);
 
         if (product.getImageId() != null && !product.getImageId().equals(cloudinaryProperties.getId())) {
             try {
@@ -143,6 +121,7 @@ public class ProductsServiceImpl implements ProductsService {
         productsRepository.delete(product);
     }
 
+    /* ---------- READ ---------- */
     @Override
     public ProductsResponse getProductById(Integer id) {
         return productsMapper.toResponse(productsRepository.findById(id)
@@ -157,12 +136,10 @@ public class ProductsServiceImpl implements ProductsService {
                 .collect(Collectors.toList());
     }
 
+    /* ---------- VALIDATE ---------- */
     private void validate(ProductsRequest request) {
         if (request.getSalePrice().compareTo(request.getImportPrice()) < 0) {
             throw new BusinessRuleException("Sale price must be greater than or equal to import price");
-        }
-        if (request.getQuantity() < 0) {
-            throw new BusinessRuleException("Quantity cannot be negative");
         }
     }
 }

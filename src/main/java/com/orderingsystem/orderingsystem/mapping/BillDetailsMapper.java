@@ -3,8 +3,6 @@ package com.orderingsystem.orderingsystem.mapping;
 import com.orderingsystem.orderingsystem.dto.request.BillDetailsRequest;
 import com.orderingsystem.orderingsystem.dto.response.BillDetailsResponse;
 import com.orderingsystem.orderingsystem.entity.BillDetails;
-import com.orderingsystem.orderingsystem.entity.Bills;
-import com.orderingsystem.orderingsystem.entity.Products;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -16,8 +14,7 @@ public interface BillDetailsMapper {
     BillDetailsResponse toResponse(BillDetails entity);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(source = "bill", target = "bill")
-    @Mapping(source = "product", target = "product")
-    @Mapping(source = "request.quantity", target = "quantity")
-    BillDetails toEntity(BillDetailsRequest request, Bills bill, Products product);
+    @Mapping(target = "bill", ignore = true)
+    @Mapping(target = "product", ignore = true)
+    BillDetails toEntity(BillDetailsRequest request);
 }

@@ -12,5 +12,6 @@ public interface UsersMapper {
     UsersResponse toResponse(Users entity);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "bills", ignore = true)
     Users toEntity(UsersRequest request);
 }

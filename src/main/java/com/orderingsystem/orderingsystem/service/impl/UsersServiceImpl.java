@@ -2,7 +2,7 @@ package com.orderingsystem.orderingsystem.service.impl;
 
 import com.orderingsystem.orderingsystem.dto.request.UsersRequest;
 import com.orderingsystem.orderingsystem.dto.response.UsersResponse;
-import com.orderingsystem.orderingsystem.entity.Bills;
+import com.orderingsystem.orderingsystem.entity.Role;
 import com.orderingsystem.orderingsystem.entity.Status;
 import com.orderingsystem.orderingsystem.entity.Users;
 import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
@@ -32,10 +32,9 @@ public class UsersServiceImpl implements UsersService {
     /* ---------- CREATE ---------- */
     @Override
     public UsersResponse createUser(UsersRequest request) {
-        request.setStatus(Status.ACTIVE);
         request.setPoint(0);
-
-        validate(request, false);
+        request.setStatus(Status.ACTIVE);
+        request.setRole(request.getRole() != null ? request.getRole() : Role.USER);
 
         Users user = usersMapper.toEntity(request);
         user.setUsername(request.getUsername().trim());
@@ -47,32 +46,24 @@ public class UsersServiceImpl implements UsersService {
     /* ---------- UPDATE ---------- */
     @Override
     public UsersResponse updateUser(Integer id, UsersRequest request) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot update this user (ID = 1)");
-        }
-
         Users user = usersRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
 
-        validate(request, true);
+        validate(request);
 
-        user.setUsername(request.getUsername().trim());
+        Users updatedUser = usersMapper.toEntity(request);
+        updatedUser.setId(user.getId());
+        updatedUser.setUsername(request.getUsername().trim());
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            updatedUser.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        user.setPoint(request.getPoint());
-        user.setStatus(request.getStatus());
 
-        return usersMapper.toResponse(usersRepository.save(user));
+        return usersMapper.toResponse(usersRepository.save(updatedUser));
     }
 
     /* ---------- SOFT DELETE ---------- */
     @Override
     public UsersResponse softDeleteUser(Integer id) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot soft delete this user (ID = 1)");
-        }
-
         Users user = usersRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User " + id + " not found"));
 
@@ -84,19 +75,9 @@ public class UsersServiceImpl implements UsersService {
     /* ---------- DELETE ---------- */
     @Override
     public void deleteUser(Integer id) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot delete this user (ID = 1)");
-        }
-
         if (!usersRepository.existsById(id)) {
             throw new ResourceNotFoundException("User with id " + id + " not found");
         }
-
-        List<Bills> billsList = billsRepository.findByUser_id(id);
-        for (Bills b : billsList) {
-            b.setUser(usersRepository.getReferenceById(1));
-        }
-        billsRepository.saveAll(billsList);
 
         usersRepository.deleteById(id);
     }
@@ -118,18 +99,9 @@ public class UsersServiceImpl implements UsersService {
     }
 
     /* ---------- PRIVATE HELPERS ---------- */
-    private void validate(UsersRequest request, boolean isUpdate) {
-        if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
-            throw new BusinessRuleException("Username must not be empty");
-        }
-        if (!isUpdate && usersRepository.existsByUsername(request.getUsername().trim())) {
+    private void validate(UsersRequest request) {
+        if (usersRepository.existsByUsername(request.getUsername().trim())) {
             throw new BusinessRuleException("Username already exists");
-        }
-        if (request.getPoint() == null || request.getPoint() < 0) {
-            throw new BusinessRuleException("Point must be a non-negative number");
-        }
-        if (request.getStatus() == null) {
-            throw new BusinessRuleException("Status must not be null");
         }
     }
 }

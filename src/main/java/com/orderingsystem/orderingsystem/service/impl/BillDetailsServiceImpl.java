@@ -42,11 +42,14 @@ public class BillDetailsServiceImpl implements BillDetailsService {
 
         validate(request, product);
 
-        BillDetails billDetail = billDetailsMapper.toEntity(request, bill, product);
-        BillDetails savedBillDetails = billDetailsRepository.save(billDetail);
+        BillDetails billDetail = billDetailsMapper.toEntity(request);
+        billDetail.setBill(bill);
+        billDetail.setProduct(product);
 
         product.setQuantity(product.getQuantity() - billDetail.getQuantity());
         productsRepository.save(product);
+
+        BillDetails savedBillDetails = billDetailsRepository.save(billDetail);
 
         return billDetailsMapper.toResponse(savedBillDetails);
     }
@@ -78,14 +81,8 @@ public class BillDetailsServiceImpl implements BillDetailsService {
 
     /* ---------- VALIDATION ---------- */
     private void validate(BillDetailsRequest request, Products product) {
-        if (request.getQuantity() == null || request.getQuantity() < 1) {
-            throw new BusinessRuleException("Quantity cannot be lower than 1");
-        }
         if (request.getQuantity() > product.getQuantity()) {
             throw new BusinessRuleException("Not enough product quantity in stock");
-        }
-        if (product.getId() == 1) {
-            throw new RuntimeException("Cannot interact with this product (ID = 1)");
         }
     }
 }

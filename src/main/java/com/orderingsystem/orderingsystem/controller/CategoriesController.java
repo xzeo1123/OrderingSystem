@@ -7,6 +7,7 @@ import com.orderingsystem.orderingsystem.service.CategoriesService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,36 +20,42 @@ public class CategoriesController {
 
     private final CategoriesService categoriesService;
 
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PostMapping
     public ResponseEntity<?> createCategory(@RequestBody @Valid CategoriesRequest request) {
         CategoriesResponse created = categoriesService.createCategory(request);
         return ResponseHelper.created(created, "Category created successfully");
     }
 
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCategory(@PathVariable Integer id, @RequestBody @Valid CategoriesRequest request) {
         CategoriesResponse updated = categoriesService.updateCategory(id, request);
         return ResponseHelper.ok(updated, "Category updated successfully");
     }
 
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PutMapping("/delete/{id}")
     public ResponseEntity<?> softDeleteCategory(@PathVariable Integer id) {
         CategoriesResponse updated = categoriesService.softDeleteCategory(id);
         return ResponseHelper.ok(updated, "Category soft deleted successfully");
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCategory(@PathVariable Integer id) {
         categoriesService.deleteCategory(id);
         return ResponseHelper.deleted("Category deleted successfully");
     }
 
+    @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<?> getCategorieById(@PathVariable Integer id) {
         CategoriesResponse category = categoriesService.getCategoryById(id);
         return ResponseHelper.ok(category, "Get category by ID successfully");
     }
 
+    @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
         List<CategoriesResponse> categories = categoriesService.getAllCategories();

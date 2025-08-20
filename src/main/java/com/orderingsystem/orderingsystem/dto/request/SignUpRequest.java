@@ -1,5 +1,6 @@
 package com.orderingsystem.orderingsystem.dto.request;
 
+import com.orderingsystem.orderingsystem.entity.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -25,6 +26,8 @@ public class SignUpRequest {
 
     @NotBlank(message = "Confirm password cannot be empty")
     private String confirmPassword;
+
+    private Role role;
 
     @jakarta.validation.Constraint(validatedBy = PasswordMatchesValidator.class)
     @java.lang.annotation.Target({ java.lang.annotation.ElementType.TYPE })

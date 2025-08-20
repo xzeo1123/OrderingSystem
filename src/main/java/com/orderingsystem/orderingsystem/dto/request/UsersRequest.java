@@ -1,5 +1,6 @@
 package com.orderingsystem.orderingsystem.dto.request;
 
+import com.orderingsystem.orderingsystem.entity.Role;
 import com.orderingsystem.orderingsystem.entity.Status;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -25,4 +26,6 @@ public class UsersRequest {
     private Integer point;
 
     private Status status;
+
+    private Role role;
 }

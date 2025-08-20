@@ -9,9 +9,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ReceiptsMapper {
 
+    ReceiptsResponse toResponse(Receipts entity);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "details", ignore = true)
     Receipts toEntity(ReceiptsRequest request);
-
-    ReceiptsResponse toResponse(Receipts entity);
 }

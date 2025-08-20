@@ -9,9 +9,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface TablesMapper {
 
+    TablesResponse toResponse(Tables entity);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "bills", ignore = true)
     Tables toEntity(TablesRequest request);
-
-    TablesResponse toResponse(Tables entity);
 }

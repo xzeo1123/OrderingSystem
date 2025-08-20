@@ -5,7 +5,6 @@ import com.orderingsystem.orderingsystem.dto.response.ReceiptDetailsResponse;
 import com.orderingsystem.orderingsystem.entity.Products;
 import com.orderingsystem.orderingsystem.entity.ReceiptDetails;
 import com.orderingsystem.orderingsystem.entity.Receipts;
-import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
 import com.orderingsystem.orderingsystem.mapping.ReceiptDetailsMapper;
 import com.orderingsystem.orderingsystem.repository.ProductsRepository;
@@ -40,13 +39,14 @@ public class ReceiptDetailsServiceImpl implements ReceiptDetailsService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Product with id " + request.getProductId() + " not found"));
 
-        validate(request, product);
-
-        ReceiptDetails receiptDetail = receiptDetailsMapper.toEntity(request, receipt, product);
-        ReceiptDetails savedReceiptDetail = receiptDetailsRepository.save(receiptDetail);
+        ReceiptDetails receiptDetail = receiptDetailsMapper.toEntity(request);
+        receiptDetail.setReceipt(receipt);
+        receiptDetail.setProduct(product);
 
         product.setQuantity(product.getQuantity() + receiptDetail.getQuantity());
         productsRepository.save(product);
+
+        ReceiptDetails savedReceiptDetail = receiptDetailsRepository.save(receiptDetail);
 
         return receiptDetailsMapper.toResponse(savedReceiptDetail);
     }
@@ -58,6 +58,7 @@ public class ReceiptDetailsServiceImpl implements ReceiptDetailsService {
             throw new ResourceNotFoundException(
                     "Receipt Detail with id " + id + " not found");
         }
+
         receiptDetailsRepository.deleteById(id);
     }
 
@@ -67,6 +68,7 @@ public class ReceiptDetailsServiceImpl implements ReceiptDetailsService {
         ReceiptDetails receiptDetail = receiptDetailsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Receipt Detail with id " + id + " not found"));
+
         return receiptDetailsMapper.toResponse(receiptDetail);
     }
 
@@ -75,18 +77,5 @@ public class ReceiptDetailsServiceImpl implements ReceiptDetailsService {
         return receiptDetailsRepository.findAll().stream()
                 .map(receiptDetailsMapper::toResponse)
                 .collect(Collectors.toList());
-    }
-
-    /* ---------- PRIVATE HELPERS ---------- */
-    private void validate(ReceiptDetailsRequest request, Products product) {
-        if (request.getQuantity() == null || request.getQuantity() < 1) {
-            throw new BusinessRuleException("Quantity must be at least 1");
-        }
-        if (request.getReceiptId() == null || request.getProductId() == null) {
-            throw new BusinessRuleException("Receipt ID and Product ID must not be null");
-        }
-        if (product.getId() == 1) {
-            throw new RuntimeException("Cannot interact with this product (ID = 1)");
-        }
     }
 }

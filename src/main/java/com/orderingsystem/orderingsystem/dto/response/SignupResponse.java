@@ -12,8 +12,4 @@ import lombok.NoArgsConstructor;
 public class SignupResponse {
 
     private String message;
-
-    private int userId;
-
-    private String username;
 }

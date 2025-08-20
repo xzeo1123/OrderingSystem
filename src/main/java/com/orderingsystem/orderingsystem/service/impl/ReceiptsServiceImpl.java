@@ -44,10 +44,6 @@ public class ReceiptsServiceImpl implements ReceiptsService {
     /* ---------- UPDATE ---------- */
     @Override
     public ReceiptsResponse updateReceipt(Integer id, ReceiptsRequest request) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot update this receipt (ID = 1)");
-        }
-
         Receipts existing = receiptsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Receipt with id " + id + " not found"));
 
@@ -64,10 +60,6 @@ public class ReceiptsServiceImpl implements ReceiptsService {
     /* ---------- SOFT DELETE ---------- */
     @Override
     public ReceiptsResponse softDeleteBill(Integer id) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot soft delete this receipt (ID = 1)");
-        }
-
         Receipts receipt = receiptsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Receipt " + id + " not found"));
 
@@ -79,10 +71,6 @@ public class ReceiptsServiceImpl implements ReceiptsService {
     /* ---------- DELETE ---------- */
     @Override
     public void deleteReceipt(Integer id) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot delete this receipt (ID = 1)");
-        }
-
         if (!receiptsRepository.existsById(id)) {
             throw new ResourceNotFoundException("Receipt with id " + id + " not found");
         }

@@ -25,9 +25,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Gom mọi Exception -> ApiError JSON.
- */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {

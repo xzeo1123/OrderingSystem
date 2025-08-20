@@ -3,6 +3,8 @@ package com.orderingsystem.orderingsystem.service.impl;
 import com.orderingsystem.orderingsystem.dto.request.*;
 import com.orderingsystem.orderingsystem.dto.response.LoginResponse;
 import com.orderingsystem.orderingsystem.dto.response.SignupResponse;
+import com.orderingsystem.orderingsystem.entity.Role;
+import com.orderingsystem.orderingsystem.entity.Status;
 import com.orderingsystem.orderingsystem.entity.Users;
 import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.UsernameException;
@@ -10,7 +12,6 @@ import com.orderingsystem.orderingsystem.repository.UsersRepository;
 import com.orderingsystem.orderingsystem.config.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.*;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,8 @@ public class AuthService {
         user.setUsername(req.getUsername());
         user.setPassword(encoder.encode(req.getPassword()));
         user.setPoint(0);
-        user.setStatus((byte)1);
+        user.setStatus(Status.ACTIVE);
+        user.setRole(req.getRole() != null ? req.getRole() : Role.USER);
 
         usersRepo.save(user);
 
@@ -41,15 +43,18 @@ public class AuthService {
         Users user = usersRepo.findByUsername(req.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Invalid"));
 
-        if (user.getStatus() == 0) {
+        if (user.getStatus() == Status.INACTIVE) {
             throw new BusinessRuleException("Account is inactive");
         }
 
         authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
+            new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
         );
 
-        String token = jwtProvider.generateToken(req.getUsername());
-        return new LoginResponse(token);
+        String role = user.getRole().name();
+        String token = jwtProvider.generateAccessToken(user.getUsername(), role);
+        String refreshToken = jwtProvider.generateRefreshToken(user.getUsername());
+
+        return new LoginResponse(token, refreshToken, user.getUsername(), role);
     }
 }

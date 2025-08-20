@@ -3,10 +3,8 @@ package com.orderingsystem.orderingsystem.service.impl;
 import com.orderingsystem.orderingsystem.dto.request.BillsRequest;
 import com.orderingsystem.orderingsystem.dto.response.BillsResponse;
 import com.orderingsystem.orderingsystem.entity.*;
-import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
 import com.orderingsystem.orderingsystem.mapping.BillsMapper;
-import com.orderingsystem.orderingsystem.repository.BillDetailsRepository;
 import com.orderingsystem.orderingsystem.repository.BillsRepository;
 import com.orderingsystem.orderingsystem.repository.TablesRepository;
 import com.orderingsystem.orderingsystem.repository.UsersRepository;
@@ -28,7 +26,6 @@ public class BillsServiceImpl implements BillsService {
     private final BillsRepository billsRepository;
     private final UsersRepository usersRepository;
     private final TablesRepository tablesRepository;
-    private final BillDetailsRepository billDetailsRepository;
     private final BillsMapper billsMapper;
 
     /* ---------- CREATE ---------- */
@@ -43,12 +40,13 @@ public class BillsServiceImpl implements BillsService {
         request.setDateCreate(LocalDateTime.now());
         request.setStatus(Status.ACTIVE);
 
-        validate(request);
+        Bills bill = billsMapper.toEntity(request);
+        bill.setUser(user);
+        bill.setTable(table);
 
-        Bills bill = billsMapper.toEntity(request, user, table);
         Bills savedBill = billsRepository.save(bill);
 
-        if (!user.getId().equals(1)) {
+        if (request.getUserId()!=1) {
             int pointToAdd = savedBill.getTotal().multiply(BigDecimal.valueOf(0.1)).intValue();
             user.setPoint(user.getPoint() + pointToAdd);
             usersRepository.save(user);
@@ -60,10 +58,6 @@ public class BillsServiceImpl implements BillsService {
     /* ---------- UPDATE ---------- */
     @Override
     public BillsResponse updateBill(Integer id, BillsRequest request) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot update this bill (ID = 1)");
-        }
-
         Bills bill = billsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill with id " + id + " not found"));
 
@@ -73,14 +67,9 @@ public class BillsServiceImpl implements BillsService {
         Tables table = tablesRepository.findById(request.getTableId())
                 .orElseThrow(() -> new ResourceNotFoundException("Table with id " + request.getTableId() + " not found"));
 
-        validate(request);
-
-        bill.setTotal(request.getTotal());
-        bill.setDateCreate(request.getDateCreate());
-        bill.setNote(request.getNote());
-        bill.setStatus(request.getStatus());
-        bill.setUser(user);
-        bill.setTable(table);
+        Bills updatedBill = billsMapper.toEntity(request);
+        updatedBill.setUser(user);
+        updatedBill.setTable(table);
 
         return billsMapper.toResponse(billsRepository.save(bill));
     }
@@ -88,10 +77,6 @@ public class BillsServiceImpl implements BillsService {
     /* ---------- SOFT DELETE ---------- */
     @Override
     public BillsResponse softDeleteBill(Integer id) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot soft delete this bill (ID = 1)");
-        }
-
         Bills bill = billsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill " + id + " not found"));
 
@@ -103,19 +88,9 @@ public class BillsServiceImpl implements BillsService {
     /* ---------- DELETE ---------- */
     @Override
     public void deleteBill(Integer id) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot delete this bill (ID = 1)");
-        }
-
         if (!billsRepository.existsById(id)) {
             throw new ResourceNotFoundException("Bill with id " + id + " not found");
         }
-
-        List<BillDetails> billDetailsList = billDetailsRepository.findByProduct_Id(id);
-        for (BillDetails bd : billDetailsList) {
-            bd.setBill(billsRepository.getReferenceById(1));
-        }
-        billDetailsRepository.saveAll(billDetailsList);
 
         billsRepository.deleteById(id);
     }
@@ -134,15 +109,5 @@ public class BillsServiceImpl implements BillsService {
                 .stream()
                 .map(billsMapper::toResponse)
                 .collect(Collectors.toList());
-    }
-
-    /* ---------- PRIVATE HELPERS ---------- */
-    private void validate(BillsRequest request) {
-        if (request.getTotal() == null || request.getTotal().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessRuleException("Total must be a non-negative value");
-        }
-        if (request.getStatus() != Status.ACTIVE && request.getStatus() != Status.INACTIVE) {
-            throw new BusinessRuleException("Status must be ACTIVE or UNACTIVE");
-        }
     }
 }

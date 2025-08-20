@@ -49,6 +49,10 @@ public class Users {
     @Column(nullable = false, length = 10)
     private Status status = Status.ACTIVE;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Bills> bills = new ArrayList<>();
 }

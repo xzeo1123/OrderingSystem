@@ -7,6 +7,7 @@ import com.orderingsystem.orderingsystem.service.BillDetailsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,30 +20,28 @@ public class BillDetailsController {
 
     private final BillDetailsService billDetailsService;
 
+    @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
     @PostMapping
     public ResponseEntity<?> createBillDetail(@RequestBody @Valid BillDetailsRequest request) {
         BillDetailsResponse created = billDetailsService.createBillDetail(request);
         return ResponseHelper.created(created, "Bill details created successfully");
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateBillDetail(@PathVariable Integer id, @RequestBody @Valid BillDetailsRequest request) {
-        BillDetailsResponse updated = billDetailsService.updateBillDetail(id, request);
-        return ResponseHelper.ok(updated, "Bill details updated successfully");
-    }
-
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBillDetail(@PathVariable Integer id) {
         billDetailsService.deleteBillDetail(id);
         return ResponseHelper.deleted("Bill details deleted successfully");
     }
 
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<?> getBillDetailById(@PathVariable Integer id) {
         BillDetailsResponse billDetail = billDetailsService.getBillDetailById(id);
         return ResponseHelper.ok(billDetail, "Get bill details by ID successfully");
     }
 
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @GetMapping
     public ResponseEntity<?> getAllBillDetails() {
         List<BillDetailsResponse> billDetails = billDetailsService.getAllBillDetails();

@@ -9,12 +9,12 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ProductsMapper {
 
+    @Mapping(source = "category.id", target = "categoryId")
+    ProductsResponse toResponse(Products products);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "billDetails", ignore = true)
     @Mapping(target = "receiptDetails", ignore = true)
     Products toEntity(ProductsRequest request);
-
-    @Mapping(source = "category.id", target = "categoryId")
-    ProductsResponse toResponse(Products products);
 }

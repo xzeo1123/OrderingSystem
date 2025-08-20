@@ -3,20 +3,17 @@ package com.orderingsystem.orderingsystem.service.impl;
 import com.orderingsystem.orderingsystem.dto.request.CategoriesRequest;
 import com.orderingsystem.orderingsystem.dto.response.CategoriesResponse;
 import com.orderingsystem.orderingsystem.entity.Categories;
-import com.orderingsystem.orderingsystem.entity.Products;
 import com.orderingsystem.orderingsystem.entity.Status;
 import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
 import com.orderingsystem.orderingsystem.mapping.CategoriesMapper;
 import com.orderingsystem.orderingsystem.repository.CategoriesRepository;
-import com.orderingsystem.orderingsystem.repository.ProductsRepository;
 import com.orderingsystem.orderingsystem.service.CategoriesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,13 +21,13 @@ import java.util.stream.Collectors;
 public class CategoriesServiceImpl implements CategoriesService {
 
     private final CategoriesRepository categoriesRepository;
-    private final ProductsRepository productsRepository;
     private final CategoriesMapper categoriesMapper;
 
     /* ---------- CREATE ---------- */
     @Override
     public CategoriesResponse createCategory(CategoriesRequest request) {
         request.setStatus(Status.ACTIVE);
+
         validate(request);
 
         Categories category = categoriesMapper.toEntity(request);
@@ -40,18 +37,13 @@ public class CategoriesServiceImpl implements CategoriesService {
     /* ---------- UPDATE ---------- */
     @Override
     public CategoriesResponse updateCategory(Integer id, CategoriesRequest request) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot update this category (ID = 1)");
-        }
-
         Categories category = categoriesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id " + id + " not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Category with id " + id + " not found"));
 
         validate(request);
 
-        category.setName(request.getName());
-        category.setDescription(request.getDescription());
-        category.setStatus(request.getStatus());
+        Categories updatedCategory = categoriesMapper.toEntity(request);
+        updatedCategory.setId(category.getId());
 
         return categoriesMapper.toResponse(categoriesRepository.save(category));
     }
@@ -59,12 +51,8 @@ public class CategoriesServiceImpl implements CategoriesService {
     /* ---------- SOFT DELETE ---------- */
     @Override
     public CategoriesResponse softDeleteCategory(Integer id) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot soft delete this category (ID = 1)");
-        }
-
         Categories category = categoriesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category " + id + " not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Category " + id + " not found"));
 
         category.setStatus(Status.INACTIVE);
 
@@ -74,19 +62,9 @@ public class CategoriesServiceImpl implements CategoriesService {
     /* ---------- DELETE ---------- */
     @Override
     public void deleteCategory(Integer id) {
-        if (id == 1) {
-            throw new RuntimeException("Cannot delete this category (ID = 1)");
-        }
-
         if (!categoriesRepository.existsById(id)) {
             throw new ResourceNotFoundException("Category with id " + id + " not found");
         }
-
-        List<Products> productsList = productsRepository.findByCategory_Id(id);
-        for (Products p : productsList) {
-            p.setCategory(categoriesRepository.getReferenceById(1));
-        }
-        productsRepository.saveAll(productsList);
 
         categoriesRepository.deleteById(id);
     }
@@ -95,23 +73,20 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Override
     public CategoriesResponse getCategoryById(Integer id) {
         Categories category = categoriesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id " + id + " not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Category with id " + id + " not found"));
         return categoriesMapper.toResponse(category);
     }
 
     @Override
     public List<CategoriesResponse> getAllCategories() {
         return categoriesRepository.findAll()
-                .stream()
-                .map(categoriesMapper::toResponse)
-                .collect(Collectors.toList());
+            .stream()
+            .map(categoriesMapper::toResponse)
+            .toList();
     }
 
     /* ---------- PRIVATE HELPERS ---------- */
     private void validate(CategoriesRequest request) {
-        if (request.getStatus() != Status.ACTIVE && request.getStatus() != Status.INACTIVE) {
-            throw new BusinessRuleException("Status must be ACTIVE or INACTIVE");
-        }
         if (categoriesRepository.existsByName(request.getName().trim())) {
             throw new BusinessRuleException("Category name already exists");
         }

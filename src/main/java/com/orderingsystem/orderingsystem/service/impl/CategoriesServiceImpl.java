@@ -10,6 +10,10 @@ import com.orderingsystem.orderingsystem.mapping.CategoriesMapper;
 import com.orderingsystem.orderingsystem.repository.CategoriesRepository;
 import com.orderingsystem.orderingsystem.service.CategoriesService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +22,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@CacheConfig(cacheNames = "categories")
 public class CategoriesServiceImpl implements CategoriesService {
 
     private final CategoriesRepository categoriesRepository;
@@ -25,6 +30,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     /* ---------- CREATE ---------- */
     @Override
+    @CacheEvict(allEntries = true)
     public CategoriesResponse createCategory(CategoriesRequest request) {
         request.setStatus(Status.ACTIVE);
 
@@ -36,6 +42,8 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     /* ---------- UPDATE ---------- */
     @Override
+    @CachePut(key = "#id")
+    @CacheEvict(allEntries = true)
     public CategoriesResponse updateCategory(Integer id, CategoriesRequest request) {
         Categories category = categoriesRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Category with id " + id + " not found"));
@@ -50,6 +58,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     /* ---------- SOFT DELETE ---------- */
     @Override
+    @CacheEvict(key = "#id", allEntries = true)
     public CategoriesResponse softDeleteCategory(Integer id) {
         Categories category = categoriesRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Category " + id + " not found"));
@@ -61,6 +70,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     /* ---------- DELETE ---------- */
     @Override
+    @CacheEvict(key = "#id", allEntries = true)
     public void deleteCategory(Integer id) {
         if (!categoriesRepository.existsById(id)) {
             throw new ResourceNotFoundException("Category with id " + id + " not found");
@@ -71,6 +81,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     /* ---------- READ ---------- */
     @Override
+    @Cacheable(key = "#id")
     public CategoriesResponse getCategoryById(Integer id) {
         Categories category = categoriesRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Category with id " + id + " not found"));
@@ -78,6 +89,7 @@ public class CategoriesServiceImpl implements CategoriesService {
     }
 
     @Override
+    @Cacheable(value = "categories_list")
     public List<CategoriesResponse> getAllCategories() {
         return categoriesRepository.findAll()
             .stream()

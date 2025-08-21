@@ -2,6 +2,7 @@ package com.orderingsystem.orderingsystem.service;
 
 import com.orderingsystem.orderingsystem.dto.request.ProductsRequest;
 import com.orderingsystem.orderingsystem.dto.response.ProductsResponse;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -11,5 +12,5 @@ public interface ProductsService {
     ProductsResponse softDeleteProduct(Integer id);
     void deleteProduct(Integer id);
     ProductsResponse getProductById(Integer id);
-    List<ProductsResponse> getAllProducts();
+    Page<ProductsResponse> getAllProducts(Integer page, Integer size);
 }

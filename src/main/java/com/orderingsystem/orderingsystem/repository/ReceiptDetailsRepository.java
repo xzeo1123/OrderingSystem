@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ReceiptDetailsRepository extends JpaRepository<ReceiptDetails, Integer> {
     List<ReceiptDetails> findByProduct_Id(Integer productId);
-    List<ReceiptDetails> findByReceipt_Id(Integer productId);
+    List<ReceiptDetails> findByReceipt_Id(Integer receiptId);
 }

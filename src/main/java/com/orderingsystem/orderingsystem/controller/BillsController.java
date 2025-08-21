@@ -6,6 +6,7 @@ import com.orderingsystem.orderingsystem.dto.response.ResponseHelper;
 import com.orderingsystem.orderingsystem.service.BillsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -57,8 +58,14 @@ public class BillsController {
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
     @GetMapping
-    public ResponseEntity<?> getAllBills() {
-        List<BillsResponse> bills = billsService.getAllBills();
+    public ResponseEntity<?> getAllBills(
+            @RequestParam Integer page,
+            @RequestParam Integer size) {
+
+        if (page < 0) page = 0;
+        if (size > 20) size = 20;
+
+        Page<BillsResponse> bills = billsService.getAllBills(page, size);
         return ResponseHelper.ok(bills, "Get list of bills successfully");
     }
 }

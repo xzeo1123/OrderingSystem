@@ -12,6 +12,10 @@ import com.orderingsystem.orderingsystem.repository.ReceiptDetailsRepository;
 import com.orderingsystem.orderingsystem.repository.ReceiptsRepository;
 import com.orderingsystem.orderingsystem.service.ReceiptsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +29,6 @@ import java.util.stream.Collectors;
 public class ReceiptsServiceImpl implements ReceiptsService {
 
     private final ReceiptsRepository receiptsRepository;
-    private final ReceiptDetailsRepository receiptDetailsRepository;
     private final ReceiptsMapper receiptMapper;
 
     /* ---------- CREATE ---------- */
@@ -75,12 +78,6 @@ public class ReceiptsServiceImpl implements ReceiptsService {
             throw new ResourceNotFoundException("Receipt with id " + id + " not found");
         }
 
-        List<ReceiptDetails> receiptDetailsList = receiptDetailsRepository.findByProduct_Id(id);
-        for (ReceiptDetails rd : receiptDetailsList) {
-            rd.setReceipt(receiptsRepository.getReferenceById(1));
-        }
-        receiptDetailsRepository.saveAll(receiptDetailsList);
-
         receiptsRepository.deleteById(id);
     }
 
@@ -93,11 +90,10 @@ public class ReceiptsServiceImpl implements ReceiptsService {
     }
 
     @Override
-    public List<ReceiptsResponse> getAllReceipts() {
-        return receiptsRepository.findAll()
-                .stream()
-                .map(receiptMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<ReceiptsResponse> getAllReceipts(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        return receiptsRepository.findAll(pageable)
+                .map(receiptMapper::toResponse);
     }
 
     /* ---------- PRIVATE HELPERS ---------- */

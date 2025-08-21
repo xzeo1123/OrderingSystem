@@ -13,6 +13,10 @@ import com.orderingsystem.orderingsystem.repository.ReceiptDetailsRepository;
 import com.orderingsystem.orderingsystem.service.ProductsService;
 import com.orderingsystem.orderingsystem.mapping.ProductsMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -129,11 +133,10 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public List<ProductsResponse> getAllProducts() {
-        return productsRepository.findAll()
-                .stream()
-                .map(productsMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<ProductsResponse> getAllProducts(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        return productsRepository.findAll(pageable)
+                .map(productsMapper::toResponse);
     }
 
     /* ---------- VALIDATE ---------- */

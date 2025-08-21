@@ -2,6 +2,7 @@ package com.orderingsystem.orderingsystem.service;
 
 import com.orderingsystem.orderingsystem.dto.request.ReceiptsRequest;
 import com.orderingsystem.orderingsystem.dto.response.ReceiptsResponse;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -11,5 +12,5 @@ public interface ReceiptsService {
     ReceiptsResponse softDeleteBill(Integer id);
     void deleteReceipt(Integer id);
     ReceiptsResponse getReceiptById(Integer id);
-    List<ReceiptsResponse> getAllReceipts();
+    Page<ReceiptsResponse> getAllReceipts(Integer page, Integer size);
 }

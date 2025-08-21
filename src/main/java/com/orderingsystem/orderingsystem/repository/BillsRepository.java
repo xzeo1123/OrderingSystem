@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface BillsRepository extends JpaRepository<Bills, Integer> {
     List<Bills> findByTable_Id(Integer tableId);
-    List<Bills> findByUser_id(Integer userId);
+    List<Bills> findByUser_Id(Integer userId);
 }

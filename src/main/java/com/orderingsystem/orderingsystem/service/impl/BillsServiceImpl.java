@@ -10,6 +10,10 @@ import com.orderingsystem.orderingsystem.repository.TablesRepository;
 import com.orderingsystem.orderingsystem.repository.UsersRepository;
 import com.orderingsystem.orderingsystem.service.BillsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,10 +108,9 @@ public class BillsServiceImpl implements BillsService {
     }
 
     @Override
-    public List<BillsResponse> getAllBills() {
-        return billsRepository.findAll()
-                .stream()
-                .map(billsMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<BillsResponse> getAllBills(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        return billsRepository.findAll(pageable)
+                .map(billsMapper::toResponse);
     }
 }

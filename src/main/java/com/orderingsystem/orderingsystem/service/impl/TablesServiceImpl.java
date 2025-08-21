@@ -10,6 +10,10 @@ import com.orderingsystem.orderingsystem.mapping.TablesMapper;
 import com.orderingsystem.orderingsystem.repository.TablesRepository;
 import com.orderingsystem.orderingsystem.service.TablesService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +22,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@CacheConfig(cacheNames = "tables")
 public class TablesServiceImpl implements TablesService {
 
     private final TablesRepository tablesRepository;
@@ -25,6 +30,7 @@ public class TablesServiceImpl implements TablesService {
 
     /* ---------- CREATE ---------- */
     @Override
+    @CacheEvict(allEntries = true)
     public TablesResponse createTable(TablesRequest request) {
         request.setStatus(Status.ACTIVE);
 
@@ -37,6 +43,8 @@ public class TablesServiceImpl implements TablesService {
 
     /* ---------- UPDATE ---------- */
     @Override
+    @CachePut(key = "#id")
+    @CacheEvict(allEntries = true)
     public TablesResponse updateTable(Integer id, TablesRequest request) {
         Tables existingTable = tablesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Table with id " + id + " not found"));
@@ -51,6 +59,7 @@ public class TablesServiceImpl implements TablesService {
 
     /* ---------- SOFT DELETE ---------- */
     @Override
+    @CacheEvict(key = "#id", allEntries = true)
     public TablesResponse softDeleteTable(Integer id) {
         Tables table = tablesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Table " + id + " not found"));
@@ -62,6 +71,7 @@ public class TablesServiceImpl implements TablesService {
 
     /* ---------- DELETE ---------- */
     @Override
+    @CacheEvict(key = "#id", allEntries = true)
     public void deleteTable(Integer id) {
         if (!tablesRepository.existsById(id)) {
             throw new ResourceNotFoundException("Table with id " + id + " not found");
@@ -72,6 +82,7 @@ public class TablesServiceImpl implements TablesService {
 
     /* ---------- READ ---------- */
     @Override
+    @Cacheable(key = "#id")
     public TablesResponse getTableById(Integer id) {
         Tables table = tablesRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Table with id " + id + " not found"));
@@ -79,6 +90,7 @@ public class TablesServiceImpl implements TablesService {
     }
 
     @Override
+    @Cacheable(value = "categories_list")
     public List<TablesResponse> getAllTables() {
         return tablesRepository.findAll()
                 .stream()

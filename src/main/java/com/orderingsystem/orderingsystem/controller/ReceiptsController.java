@@ -7,9 +7,13 @@ import com.orderingsystem.orderingsystem.service.ReceiptsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/receipts")
@@ -21,36 +25,36 @@ public class ReceiptsController {
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createReceipt(@RequestBody @Valid ReceiptsRequest request) {
-        ReceiptsResponse created = receiptsService.createReceipt(request);
+    public ResponseEntity<?> createReceipt(@RequestBody @Valid ReceiptsRequest receiptsRequest) {
+        ReceiptsResponse created = receiptsService.createReceipt(receiptsRequest);
         return ResponseHelper.created(created, "Receipt created successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateReceipt(@PathVariable Integer id, @RequestBody @Valid ReceiptsRequest request) {
-        ReceiptsResponse updated = receiptsService.updateReceipt(id, request);
+    public ResponseEntity<?> updateReceipt(@PathVariable Integer receiptId, @RequestBody @Valid ReceiptsRequest receiptsRequest) {
+        ReceiptsResponse updated = receiptsService.updateReceipt(receiptId, receiptsRequest);
         return ResponseHelper.ok(updated, "Receipt updated successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PutMapping("/delete/{id}")
-    public ResponseEntity<?> softDeleteBill(@PathVariable Integer id) {
-        ReceiptsResponse updated = receiptsService.softDeleteBill(id);
+    public ResponseEntity<?> softDeleteBill(@PathVariable Integer receiptId) {
+        ReceiptsResponse updated = receiptsService.softDeleteBill(receiptId);
         return ResponseHelper.ok(updated, "Receipt soft deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteReceipt(@PathVariable Integer id) {
-        receiptsService.deleteReceipt(id);
+    public ResponseEntity<?> deleteReceipt(@PathVariable Integer receiptId) {
+        receiptsService.deleteReceipt(receiptId);
         return ResponseHelper.deleted("Receipt deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getReceiptById(@PathVariable Integer id) {
-        ReceiptsResponse receipt = receiptsService.getReceiptById(id);
+    public ResponseEntity<?> getReceiptById(@PathVariable Integer receiptId) {
+        ReceiptsResponse receipt = receiptsService.getReceiptById(receiptId);
         return ResponseHelper.ok(receipt, "Get receipt by ID successfully");
     }
 
@@ -65,5 +69,24 @@ public class ReceiptsController {
 
         Page<ReceiptsResponse> receipts = receiptsService.getAllReceipts(page, size);
         return ResponseHelper.ok(receipts, "Get list of receipts successfully");
+    }
+
+
+    @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
+    @GetMapping("/filter/date")
+    public ResponseEntity<?> getReceiptsByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        List<ReceiptsResponse> receipts = receiptsService.getReceiptsByDateRange(startDate, endDate);
+        return ResponseHelper.ok(receipts, "Get receipts by date range successfully");
+    }
+
+    @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
+    @GetMapping("/filter/total")
+    public ResponseEntity<?> getReceiptsByTotalRange(
+            @RequestParam Double minTotal,
+            @RequestParam Double maxTotal) {
+        List<ReceiptsResponse> receipts = receiptsService.getReceiptsByTotalRange(minTotal, maxTotal);
+        return ResponseHelper.ok(receipts, "Get receipts by total range successfully");
     }
 }

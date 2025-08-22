@@ -31,18 +31,18 @@ public class BillDetailsServiceImpl implements BillDetailsService {
 
     /* ---------- CREATE ---------- */
     @Override
-    public BillDetailsResponse createBillDetail(BillDetailsRequest request) {
-        Bills bill = billsRepository.findById(request.getBillId())
+    public BillDetailsResponse createBillDetail(BillDetailsRequest billDetailsRequest) {
+        Bills bill = billsRepository.findById(billDetailsRequest.getBillId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Bill with id " + request.getBillId() + " not found"));
+                        "Bill with id " + billDetailsRequest.getBillId() + " not found"));
 
-        Products product = productsRepository.findById(request.getProductId())
+        Products product = productsRepository.findById(billDetailsRequest.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Product with id " + request.getProductId() + " not found"));
+                        "Product with id " + billDetailsRequest.getProductId() + " not found"));
 
-        validate(request, product);
+        validate(billDetailsRequest, product);
 
-        BillDetails billDetail = billDetailsMapper.toEntity(request);
+        BillDetails billDetail = billDetailsMapper.toEntity(billDetailsRequest);
         billDetail.setBill(bill);
         billDetail.setProduct(product);
 
@@ -56,18 +56,18 @@ public class BillDetailsServiceImpl implements BillDetailsService {
 
     /* ---------- DELETE ---------- */
     @Override
-    public void deleteBillDetail(Integer id) {
-        if (!billDetailsRepository.existsById(id)) {
-            throw new ResourceNotFoundException("BillDetail " + id + " not found");
+    public void deleteBillDetail(Integer billDetailId) {
+        if (!billDetailsRepository.existsById(billDetailId)) {
+            throw new ResourceNotFoundException("BillDetail " + billDetailId + " not found");
         }
-        billDetailsRepository.deleteById(id);
+        billDetailsRepository.deleteById(billDetailId);
     }
 
     /* ---------- READ ---------- */
     @Override
-    public BillDetailsResponse getBillDetailById(Integer id) {
-        BillDetails billDetail = billDetailsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("BillDetail " + id + " not found"));
+    public BillDetailsResponse getBillDetailById(Integer billDetailId) {
+        BillDetails billDetail = billDetailsRepository.findById(billDetailId)
+                .orElseThrow(() -> new ResourceNotFoundException("BillDetail " + billDetailId + " not found"));
         return billDetailsMapper.toResponse(billDetail);
     }
 
@@ -79,9 +79,25 @@ public class BillDetailsServiceImpl implements BillDetailsService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<BillDetailsResponse> getBillDetailsByBill(Integer billId) {
+        return billDetailsRepository.findByBill_Id(billId)
+                .stream()
+                .map(billDetailsMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<BillDetailsResponse> getBillDetailsByProduct(Integer productId) {
+        return billDetailsRepository.findByProduct_Id(productId)
+                .stream()
+                .map(billDetailsMapper::toResponse)
+                .toList();
+    }
+
     /* ---------- VALIDATION ---------- */
-    private void validate(BillDetailsRequest request, Products product) {
-        if (request.getQuantity() > product.getQuantity()) {
+    private void validate(BillDetailsRequest billDetailsRequest, Products product) {
+        if (billDetailsRequest.getQuantity() > product.getQuantity()) {
             throw new BusinessRuleException("Not enough product quantity in stock");
         }
     }

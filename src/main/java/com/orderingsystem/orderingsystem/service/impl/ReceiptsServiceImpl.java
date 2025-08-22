@@ -2,13 +2,10 @@ package com.orderingsystem.orderingsystem.service.impl;
 
 import com.orderingsystem.orderingsystem.dto.request.ReceiptsRequest;
 import com.orderingsystem.orderingsystem.dto.response.ReceiptsResponse;
-import com.orderingsystem.orderingsystem.entity.ReceiptDetails;
 import com.orderingsystem.orderingsystem.entity.Receipts;
 import com.orderingsystem.orderingsystem.entity.Status;
-import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
 import com.orderingsystem.orderingsystem.mapping.ReceiptsMapper;
-import com.orderingsystem.orderingsystem.repository.ReceiptDetailsRepository;
 import com.orderingsystem.orderingsystem.repository.ReceiptsRepository;
 import com.orderingsystem.orderingsystem.service.ReceiptsService;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,26 +29,22 @@ public class ReceiptsServiceImpl implements ReceiptsService {
 
     /* ---------- CREATE ---------- */
     @Override
-    public ReceiptsResponse createReceipt(ReceiptsRequest request) {
-        if (request.getStatus() == null) {
-            request.setStatus(Status.ACTIVE);
+    public ReceiptsResponse createReceipt(ReceiptsRequest receiptsRequest) {
+        if (receiptsRequest.getStatus() == null) {
+            receiptsRequest.setStatus(Status.ACTIVE);
         }
 
-        validate(request);
-
-        Receipts receipt = receiptMapper.toEntity(request);
+        Receipts receipt = receiptMapper.toEntity(receiptsRequest);
         return receiptMapper.toResponse(receiptsRepository.save(receipt));
     }
 
     /* ---------- UPDATE ---------- */
     @Override
-    public ReceiptsResponse updateReceipt(Integer id, ReceiptsRequest request) {
-        Receipts existing = receiptsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Receipt with id " + id + " not found"));
+    public ReceiptsResponse updateReceipt(Integer receiptId, ReceiptsRequest receiptsRequest) {
+        Receipts existing = receiptsRepository.findById(receiptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Receipt with id " + receiptId + " not found"));
 
-        validate(request);
-
-        Receipts updated = receiptMapper.toEntity(request);
+        Receipts updated = receiptMapper.toEntity(receiptsRequest);
         updated.setId(existing.getId());
         updated.setDateCreate(existing.getDateCreate());
         updated.setDetails(existing.getDetails());
@@ -62,9 +54,9 @@ public class ReceiptsServiceImpl implements ReceiptsService {
 
     /* ---------- SOFT DELETE ---------- */
     @Override
-    public ReceiptsResponse softDeleteBill(Integer id) {
-        Receipts receipt = receiptsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Receipt " + id + " not found"));
+    public ReceiptsResponse softDeleteBill(Integer receiptId) {
+        Receipts receipt = receiptsRepository.findById(receiptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Receipt " + receiptId + " not found"));
 
         receipt.setStatus(Status.INACTIVE);
 
@@ -73,19 +65,19 @@ public class ReceiptsServiceImpl implements ReceiptsService {
 
     /* ---------- DELETE ---------- */
     @Override
-    public void deleteReceipt(Integer id) {
-        if (!receiptsRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Receipt with id " + id + " not found");
+    public void deleteReceipt(Integer receiptId) {
+        if (!receiptsRepository.existsById(receiptId)) {
+            throw new ResourceNotFoundException("Receipt with id " + receiptId + " not found");
         }
 
-        receiptsRepository.deleteById(id);
+        receiptsRepository.deleteById(receiptId);
     }
 
     /* ---------- READ ---------- */
     @Override
-    public ReceiptsResponse getReceiptById(Integer id) {
-        Receipts receipt = receiptsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Receipt with id " + id + " not found"));
+    public ReceiptsResponse getReceiptById(Integer receiptId) {
+        Receipts receipt = receiptsRepository.findById(receiptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Receipt with id " + receiptId + " not found"));
         return receiptMapper.toResponse(receipt);
     }
 
@@ -96,10 +88,19 @@ public class ReceiptsServiceImpl implements ReceiptsService {
                 .map(receiptMapper::toResponse);
     }
 
-    /* ---------- PRIVATE HELPERS ---------- */
-    private void validate(ReceiptsRequest request) {
-        if (request.getTotal() == null || request.getTotal().compareTo(BigDecimal.ZERO) < 0) {
-            throw new BusinessRuleException("Total must be a non-negative value");
-        }
+    @Override
+    public List<ReceiptsResponse> getReceiptsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return receiptsRepository.findByDatecreateBetween(startDate, endDate)
+                .stream()
+                .map(receiptMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<ReceiptsResponse> getReceiptsByTotalRange(Double minTotal, Double maxTotal) {
+        return receiptsRepository.findByTotalBetween(minTotal, maxTotal)
+                .stream()
+                .map(receiptMapper::toResponse)
+                .toList();
     }
 }

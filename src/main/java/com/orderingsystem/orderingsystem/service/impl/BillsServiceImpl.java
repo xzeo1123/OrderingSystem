@@ -34,23 +34,23 @@ public class BillsServiceImpl implements BillsService {
 
     /* ---------- CREATE ---------- */
     @Override
-    public BillsResponse createBill(BillsRequest request) {
-        Users user = usersRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + request.getUserId() + " not found"));
+    public BillsResponse createBill(BillsRequest billsRequest) {
+        Users user = usersRepository.findById(billsRequest.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + billsRequest.getUserId() + " not found"));
 
-        Tables table = tablesRepository.findById(request.getTableId())
-                .orElseThrow(() -> new ResourceNotFoundException("Table with id " + request.getTableId() + " not found"));
+        Tables table = tablesRepository.findById(billsRequest.getTableId())
+                .orElseThrow(() -> new ResourceNotFoundException("Table with id " + billsRequest.getTableId() + " not found"));
 
-        request.setDateCreate(LocalDateTime.now());
-        request.setStatus(Status.ACTIVE);
+        billsRequest.setDateCreate(LocalDateTime.now());
+        billsRequest.setStatus(Status.ACTIVE);
 
-        Bills bill = billsMapper.toEntity(request);
+        Bills bill = billsMapper.toEntity(billsRequest);
         bill.setUser(user);
         bill.setTable(table);
 
         Bills savedBill = billsRepository.save(bill);
 
-        if (request.getUserId()!=1) {
+        if (billsRequest.getUserId()!=1) {
             int pointToAdd = savedBill.getTotal().multiply(BigDecimal.valueOf(0.1)).intValue();
             user.setPoint(user.getPoint() + pointToAdd);
             usersRepository.save(user);
@@ -61,17 +61,17 @@ public class BillsServiceImpl implements BillsService {
 
     /* ---------- UPDATE ---------- */
     @Override
-    public BillsResponse updateBill(Integer id, BillsRequest request) {
+    public BillsResponse updateBill(Integer id, BillsRequest billsRequest) {
         Bills bill = billsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill with id " + id + " not found"));
 
-        Users user = usersRepository.findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + request.getUserId() + " not found"));
+        Users user = usersRepository.findById(billsRequest.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + billsRequest.getUserId() + " not found"));
 
-        Tables table = tablesRepository.findById(request.getTableId())
-                .orElseThrow(() -> new ResourceNotFoundException("Table with id " + request.getTableId() + " not found"));
+        Tables table = tablesRepository.findById(billsRequest.getTableId())
+                .orElseThrow(() -> new ResourceNotFoundException("Table with id " + billsRequest.getTableId() + " not found"));
 
-        Bills updatedBill = billsMapper.toEntity(request);
+        Bills updatedBill = billsMapper.toEntity(billsRequest);
         updatedBill.setUser(user);
         updatedBill.setTable(table);
 
@@ -80,9 +80,9 @@ public class BillsServiceImpl implements BillsService {
 
     /* ---------- SOFT DELETE ---------- */
     @Override
-    public BillsResponse softDeleteBill(Integer id) {
-        Bills bill = billsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Bill " + id + " not found"));
+    public BillsResponse softDeleteBill(Integer billid) {
+        Bills bill = billsRepository.findById(billid)
+                .orElseThrow(() -> new ResourceNotFoundException("Bill " + billid + " not found"));
 
         bill.setStatus(Status.INACTIVE);
 
@@ -91,19 +91,19 @@ public class BillsServiceImpl implements BillsService {
 
     /* ---------- DELETE ---------- */
     @Override
-    public void deleteBill(Integer id) {
-        if (!billsRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Bill with id " + id + " not found");
+    public void deleteBill(Integer billid) {
+        if (!billsRepository.existsById(billid)) {
+            throw new ResourceNotFoundException("Bill with id " + billid + " not found");
         }
 
-        billsRepository.deleteById(id);
+        billsRepository.deleteById(billid);
     }
 
     /* ---------- READ ---------- */
     @Override
-    public BillsResponse getBillById(Integer id) {
-        Bills bill = billsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Bill with id " + id + " not found"));
+    public BillsResponse getBillById(Integer billid) {
+        Bills bill = billsRepository.findById(billid)
+                .orElseThrow(() -> new ResourceNotFoundException("Bill with id " + billid + " not found"));
         return billsMapper.toResponse(bill);
     }
 
@@ -113,4 +113,37 @@ public class BillsServiceImpl implements BillsService {
         return billsRepository.findAll(pageable)
                 .map(billsMapper::toResponse);
     }
+
+    @Override
+    public List<BillsResponse> getBillsByUser(Integer userId) {
+        return billsRepository.findByUser_Id(userId)
+                .stream()
+                .map(billsMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<BillsResponse> getBillsByTable(Integer tableId) {
+        return billsRepository.findByTable_Id(tableId)
+                .stream()
+                .map(billsMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<BillsResponse> getBillsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return billsRepository.findByDatecreateBetween(startDate, endDate)
+                .stream()
+                .map(billsMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<BillsResponse> getBillsByTotalRange(Double minTotal, Double maxTotal) {
+        return billsRepository.findByTotalBetween(minTotal, maxTotal)
+                .stream()
+                .map(billsMapper::toResponse)
+                .toList();
+    }
+
 }

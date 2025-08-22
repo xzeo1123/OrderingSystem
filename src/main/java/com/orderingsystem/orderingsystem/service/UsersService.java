@@ -6,10 +6,11 @@ import com.orderingsystem.orderingsystem.dto.response.UsersResponse;
 import java.util.List;
 
 public interface UsersService {
-    UsersResponse createUser(UsersRequest request);
-    UsersResponse updateUser(Integer id, UsersRequest request);
-    UsersResponse softDeleteUser(Integer id);
-    void deleteUser(Integer id);
-    UsersResponse getUserById(Integer id);
+    UsersResponse createUser(UsersRequest usersRequest);
+    UsersResponse updateUser(Integer userId, UsersRequest usersRequest);
+    UsersResponse softDeleteUser(Integer userId);
+    void deleteUser(Integer userId);
+    UsersResponse getUserById(Integer userId);
     List<UsersResponse> getAllUsers();
+    List<UsersResponse> searchUsersByUsername(String username);
 }

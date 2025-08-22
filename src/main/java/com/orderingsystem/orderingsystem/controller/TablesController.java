@@ -22,36 +22,36 @@ public class TablesController {
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createTable(@RequestBody @Valid TablesRequest request) {
-        TablesResponse created = tablesService.createTable(request);
+    public ResponseEntity<?> createTable(@RequestBody @Valid TablesRequest tablesRequest) {
+        TablesResponse created = tablesService.createTable(tablesRequest);
         return ResponseHelper.created(created, "Table created successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateTable(@PathVariable Integer id, @RequestBody @Valid TablesRequest request) {
-        TablesResponse updated = tablesService.updateTable(id, request);
+    public ResponseEntity<?> updateTable(@PathVariable Integer tableId, @RequestBody @Valid TablesRequest tablesRequest) {
+        TablesResponse updated = tablesService.updateTable(tableId, tablesRequest);
         return ResponseHelper.ok(updated, "Table updated successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PutMapping("/delete/{id}")
-    public ResponseEntity<?> softDeleteTable(@PathVariable Integer id) {
-        TablesResponse updated = tablesService.softDeleteTable(id);
+    public ResponseEntity<?> softDeleteTable(@PathVariable Integer tableId) {
+        TablesResponse updated = tablesService.softDeleteTable(tableId);
         return ResponseHelper.ok(updated, "Table soft deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTable(@PathVariable Integer id) {
-        tablesService.deleteTable(id);
+    public ResponseEntity<?> deleteTable(@PathVariable Integer tableId) {
+        tablesService.deleteTable(tableId);
         return ResponseHelper.deleted("Table deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getTableById(@PathVariable Integer id) {
-        TablesResponse table = tablesService.getTableById(id);
+    public ResponseEntity<?> getTableById(@PathVariable Integer tableId) {
+        TablesResponse table = tablesService.getTableById(tableId);
         return ResponseHelper.ok(table, "Get table by ID successfully");
     }
 

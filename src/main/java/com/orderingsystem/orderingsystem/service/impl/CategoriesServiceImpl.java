@@ -31,12 +31,12 @@ public class CategoriesServiceImpl implements CategoriesService {
     /* ---------- CREATE ---------- */
     @Override
     @CacheEvict(allEntries = true)
-    public CategoriesResponse createCategory(CategoriesRequest request) {
-        request.setStatus(Status.ACTIVE);
+    public CategoriesResponse createCategory(CategoriesRequest categoriesRequest) {
+        categoriesRequest.setStatus(Status.ACTIVE);
 
-        validate(request);
+        validate(categoriesRequest);
 
-        Categories category = categoriesMapper.toEntity(request);
+        Categories category = categoriesMapper.toEntity(categoriesRequest);
         return categoriesMapper.toResponse(categoriesRepository.save(category));
     }
 
@@ -44,13 +44,13 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Override
     @CachePut(key = "#id")
     @CacheEvict(allEntries = true)
-    public CategoriesResponse updateCategory(Integer id, CategoriesRequest request) {
-        Categories category = categoriesRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Category with id " + id + " not found"));
+    public CategoriesResponse updateCategory(Integer categoryId, CategoriesRequest categoriesRequest) {
+        Categories category = categoriesRepository.findById(categoryId)
+            .orElseThrow(() -> new ResourceNotFoundException("Category with id " + categoryId + " not found"));
 
-        validate(request);
+        validate(categoriesRequest);
 
-        Categories updatedCategory = categoriesMapper.toEntity(request);
+        Categories updatedCategory = categoriesMapper.toEntity(categoriesRequest);
         updatedCategory.setId(category.getId());
 
         return categoriesMapper.toResponse(categoriesRepository.save(category));
@@ -59,9 +59,9 @@ public class CategoriesServiceImpl implements CategoriesService {
     /* ---------- SOFT DELETE ---------- */
     @Override
     @CacheEvict(key = "#id", allEntries = true)
-    public CategoriesResponse softDeleteCategory(Integer id) {
-        Categories category = categoriesRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Category " + id + " not found"));
+    public CategoriesResponse softDeleteCategory(Integer categoryId) {
+        Categories category = categoriesRepository.findById(categoryId)
+            .orElseThrow(() -> new ResourceNotFoundException("Category " + categoryId + " not found"));
 
         category.setStatus(Status.INACTIVE);
 
@@ -71,20 +71,20 @@ public class CategoriesServiceImpl implements CategoriesService {
     /* ---------- DELETE ---------- */
     @Override
     @CacheEvict(key = "#id", allEntries = true)
-    public void deleteCategory(Integer id) {
-        if (!categoriesRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Category with id " + id + " not found");
+    public void deleteCategory(Integer categoryId) {
+        if (!categoriesRepository.existsById(categoryId)) {
+            throw new ResourceNotFoundException("Category with id " + categoryId + " not found");
         }
 
-        categoriesRepository.deleteById(id);
+        categoriesRepository.deleteById(categoryId);
     }
 
     /* ---------- READ ---------- */
     @Override
     @Cacheable(key = "#id")
-    public CategoriesResponse getCategoryById(Integer id) {
-        Categories category = categoriesRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Category with id " + id + " not found"));
+    public CategoriesResponse getCategoryById(Integer categoryId) {
+        Categories category = categoriesRepository.findById(categoryId)
+            .orElseThrow(() -> new ResourceNotFoundException("Category with id " + categoryId + " not found"));
         return categoriesMapper.toResponse(category);
     }
 
@@ -97,9 +97,18 @@ public class CategoriesServiceImpl implements CategoriesService {
             .toList();
     }
 
+    @Override
+    public List<CategoriesResponse> searchCategoriesByName(String categoryName) {
+        return categoriesRepository.findByNameContainingIgnoreCase(categoryName)
+                .stream()
+                .map(categoriesMapper::toResponse)
+                .toList();
+    }
+
+
     /* ---------- PRIVATE HELPERS ---------- */
-    private void validate(CategoriesRequest request) {
-        if (categoriesRepository.existsByName(request.getName().trim())) {
+    private void validate(CategoriesRequest categoriesRequest) {
+        if (categoriesRepository.existsByName(categoriesRequest.getName().trim())) {
             throw new BusinessRuleException("Category name already exists");
         }
     }

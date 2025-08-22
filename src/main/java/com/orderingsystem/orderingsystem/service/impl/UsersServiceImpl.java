@@ -31,31 +31,31 @@ public class UsersServiceImpl implements UsersService {
 
     /* ---------- CREATE ---------- */
     @Override
-    public UsersResponse createUser(UsersRequest request) {
-        request.setPoint(0);
-        request.setStatus(Status.ACTIVE);
-        request.setRole(request.getRole() != null ? request.getRole() : Role.USER);
+    public UsersResponse createUser(UsersRequest usersRequest) {
+        usersRequest.setPoint(0);
+        usersRequest.setStatus(Status.ACTIVE);
+        usersRequest.setRole(usersRequest.getRole() != null ? usersRequest.getRole() : Role.USER);
 
-        Users user = usersMapper.toEntity(request);
-        user.setUsername(request.getUsername().trim());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        Users user = usersMapper.toEntity(usersRequest);
+        user.setUsername(usersRequest.getUsername().trim());
+        user.setPassword(passwordEncoder.encode(usersRequest.getPassword()));
 
         return usersMapper.toResponse(usersRepository.save(user));
     }
 
     /* ---------- UPDATE ---------- */
     @Override
-    public UsersResponse updateUser(Integer id, UsersRequest request) {
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+    public UsersResponse updateUser(Integer userId, UsersRequest usersRequest) {
+        Users user = usersRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
 
-        validate(request);
+        validate(usersRequest);
 
-        Users updatedUser = usersMapper.toEntity(request);
+        Users updatedUser = usersMapper.toEntity(usersRequest);
         updatedUser.setId(user.getId());
-        updatedUser.setUsername(request.getUsername().trim());
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            updatedUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        updatedUser.setUsername(usersRequest.getUsername().trim());
+        if (usersRequest.getPassword() != null && !usersRequest.getPassword().isBlank()) {
+            updatedUser.setPassword(passwordEncoder.encode(usersRequest.getPassword()));
         }
 
         return usersMapper.toResponse(usersRepository.save(updatedUser));
@@ -63,9 +63,9 @@ public class UsersServiceImpl implements UsersService {
 
     /* ---------- SOFT DELETE ---------- */
     @Override
-    public UsersResponse softDeleteUser(Integer id) {
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User " + id + " not found"));
+    public UsersResponse softDeleteUser(Integer userId) {
+        Users user = usersRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User " + userId + " not found"));
 
         user.setStatus(Status.INACTIVE);
 
@@ -74,19 +74,19 @@ public class UsersServiceImpl implements UsersService {
 
     /* ---------- DELETE ---------- */
     @Override
-    public void deleteUser(Integer id) {
-        if (!usersRepository.existsById(id)) {
-            throw new ResourceNotFoundException("User with id " + id + " not found");
+    public void deleteUser(Integer userId) {
+        if (!usersRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User with id " + userId + " not found");
         }
 
-        usersRepository.deleteById(id);
+        usersRepository.deleteById(userId);
     }
 
     /* ---------- READ ---------- */
     @Override
-    public UsersResponse getUserById(Integer id) {
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+    public UsersResponse getUserById(Integer userId) {
+        Users user = usersRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
         return usersMapper.toResponse(user);
     }
 
@@ -98,9 +98,18 @@ public class UsersServiceImpl implements UsersService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<UsersResponse> searchUsersByUsername(String username) {
+        return usersRepository.findByUsernameContainingIgnoreCase(username)
+                .stream()
+                .map(usersMapper::toResponse)
+                .toList();
+    }
+
+
     /* ---------- PRIVATE HELPERS ---------- */
-    private void validate(UsersRequest request) {
-        if (usersRepository.existsByUsername(request.getUsername().trim())) {
+    private void validate(UsersRequest usersRequest) {
+        if (usersRepository.existsByUsername(usersRequest.getUsername().trim())) {
             throw new BusinessRuleException("Username already exists");
         }
     }

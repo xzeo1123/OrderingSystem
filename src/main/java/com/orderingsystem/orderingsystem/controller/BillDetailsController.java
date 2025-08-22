@@ -22,22 +22,22 @@ public class BillDetailsController {
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createBillDetail(@RequestBody @Valid BillDetailsRequest request) {
-        BillDetailsResponse created = billDetailsService.createBillDetail(request);
+    public ResponseEntity<?> createBillDetail(@RequestBody @Valid BillDetailsRequest billDetailsRequest) {
+        BillDetailsResponse created = billDetailsService.createBillDetail(billDetailsRequest);
         return ResponseHelper.created(created, "Bill details created successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteBillDetail(@PathVariable Integer id) {
-        billDetailsService.deleteBillDetail(id);
+    public ResponseEntity<?> deleteBillDetail(@PathVariable Integer billDetailsId) {
+        billDetailsService.deleteBillDetail(billDetailsId);
         return ResponseHelper.deleted("Bill details deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBillDetailById(@PathVariable Integer id) {
-        BillDetailsResponse billDetail = billDetailsService.getBillDetailById(id);
+    public ResponseEntity<?> getBillDetailById(@PathVariable Integer billDetailsId) {
+        BillDetailsResponse billDetail = billDetailsService.getBillDetailById(billDetailsId);
         return ResponseHelper.ok(billDetail, "Get bill details by ID successfully");
     }
 
@@ -46,5 +46,19 @@ public class BillDetailsController {
     public ResponseEntity<?> getAllBillDetails() {
         List<BillDetailsResponse> billDetails = billDetailsService.getAllBillDetails();
         return ResponseHelper.ok(billDetails, "Get list of bill details successfully");
+    }
+
+    @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
+    @GetMapping("/filter/bill")
+    public ResponseEntity<?> getBillDetailsByBill(@RequestParam Integer billId) {
+        List<BillDetailsResponse> billDetails = billDetailsService.getBillDetailsByBill(billId);
+        return ResponseHelper.ok(billDetails, "Get bill details by bill successfully");
+    }
+
+    @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
+    @GetMapping("/filter/product")
+    public ResponseEntity<?> getBillDetailsByProduct(@RequestParam Integer productId) {
+        List<BillDetailsResponse> billDetails = billDetailsService.getBillDetailsByProduct(productId);
+        return ResponseHelper.ok(billDetails, "Get bill details by product successfully");
     }
 }

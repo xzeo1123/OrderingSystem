@@ -4,13 +4,16 @@ import com.orderingsystem.orderingsystem.dto.request.ReceiptsRequest;
 import com.orderingsystem.orderingsystem.dto.response.ReceiptsResponse;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReceiptsService {
-    ReceiptsResponse createReceipt(ReceiptsRequest request);
-    ReceiptsResponse updateReceipt(Integer id, ReceiptsRequest request);
-    ReceiptsResponse softDeleteBill(Integer id);
+    ReceiptsResponse createReceipt(ReceiptsRequest receiptsRequest);
+    ReceiptsResponse updateReceipt(Integer receiptId, ReceiptsRequest receiptsRequest);
+    ReceiptsResponse softDeleteBill(Integer receiptId);
     void deleteReceipt(Integer id);
-    ReceiptsResponse getReceiptById(Integer id);
+    ReceiptsResponse getReceiptById(Integer receiptId);
     Page<ReceiptsResponse> getAllReceipts(Integer page, Integer size);
+    List<ReceiptsResponse> getReceiptsByDateRange(LocalDateTime startDate, LocalDateTime endDate);
+    List<ReceiptsResponse> getReceiptsByTotalRange(Double minTotal, Double maxTotal);
 }

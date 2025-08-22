@@ -1,7 +1,6 @@
 package com.orderingsystem.orderingsystem.controller;
 
 import com.orderingsystem.orderingsystem.dto.request.TablesRequest;
-import com.orderingsystem.orderingsystem.dto.response.ReceiptsResponse;
 import com.orderingsystem.orderingsystem.dto.response.TablesResponse;
 import com.orderingsystem.orderingsystem.dto.response.ResponseHelper;
 import com.orderingsystem.orderingsystem.service.TablesService;

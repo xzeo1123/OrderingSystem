@@ -12,18 +12,18 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final String ACCESS_SECRET  = "mysupersecretkeymysupersecretkey!@#"; // >= 32 bytes
-    private final String REFRESH_SECRET = "mysuperrefreshkeymysuperrefreshkey!@#";
+    private final JwtProperties jwtProperties;
 
-    private final long ACCESS_TTL_MS  = 1_800_000;   // 30m
-    private final long REFRESH_TTL_MS = 15L * 24 * 60 * 60 * 1000; // 15d
+    public JwtTokenProvider(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
+    }
 
-    private SecretKey accessKey()  { return Keys.hmacShaKeyFor(ACCESS_SECRET.getBytes()); }
-    private SecretKey refreshKey() { return Keys.hmacShaKeyFor(REFRESH_SECRET.getBytes()); }
+    private SecretKey accessKey()  { return Keys.hmacShaKeyFor(jwtProperties.getAccessSecret().getBytes()); }
+    private SecretKey refreshKey() { return Keys.hmacShaKeyFor(jwtProperties.getRefreshSecret().getBytes()); }
 
     public String generateAccessToken(String username, String role) {
         Date now = new Date();
-        Date exp  = new Date(now.getTime() + ACCESS_TTL_MS);
+        Date exp  = new Date(now.getTime() + jwtProperties.getAccessTtl());
 
         return Jwts.builder()
             .setSubject(username)
@@ -36,7 +36,7 @@ public class JwtTokenProvider {
 
     public String generateRefreshToken(String username) {
         Date now = new Date();
-        Date exp = new Date(now.getTime() + REFRESH_TTL_MS);
+        Date exp = new Date(now.getTime() + jwtProperties.getRefreshTtl());
 
         return Jwts.builder()
             .setSubject(username)

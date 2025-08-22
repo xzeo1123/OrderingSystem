@@ -1,6 +1,7 @@
 package com.orderingsystem.orderingsystem.service.impl;
 
 import com.orderingsystem.orderingsystem.dto.request.ReceiptDetailsRequest;
+import com.orderingsystem.orderingsystem.dto.response.BillDetailsResponse;
 import com.orderingsystem.orderingsystem.dto.response.ReceiptDetailsResponse;
 import com.orderingsystem.orderingsystem.entity.Products;
 import com.orderingsystem.orderingsystem.entity.ReceiptDetails;
@@ -30,16 +31,16 @@ public class ReceiptDetailsServiceImpl implements ReceiptDetailsService {
 
     /* ---------- CREATE ---------- */
     @Override
-    public ReceiptDetailsResponse createReceiptDetail(ReceiptDetailsRequest request) {
-        Receipts receipt = receiptsRepository.findById(request.getReceiptId())
+    public ReceiptDetailsResponse createReceiptDetail(ReceiptDetailsRequest receiptDetailsRequest) {
+        Receipts receipt = receiptsRepository.findById(receiptDetailsRequest.getReceiptId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Receipt with id " + request.getReceiptId() + " not found"));
+                        "Receipt with id " + receiptDetailsRequest.getReceiptId() + " not found"));
 
-        Products product = productsRepository.findById(request.getProductId())
+        Products product = productsRepository.findById(receiptDetailsRequest.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Product with id " + request.getProductId() + " not found"));
+                        "Product with id " + receiptDetailsRequest.getProductId() + " not found"));
 
-        ReceiptDetails receiptDetail = receiptDetailsMapper.toEntity(request);
+        ReceiptDetails receiptDetail = receiptDetailsMapper.toEntity(receiptDetailsRequest);
         receiptDetail.setReceipt(receipt);
         receiptDetail.setProduct(product);
 
@@ -53,21 +54,21 @@ public class ReceiptDetailsServiceImpl implements ReceiptDetailsService {
 
     /* ---------- DELETE ---------- */
     @Override
-    public void deleteReceiptDetail(Integer id) {
-        if (!receiptDetailsRepository.existsById(id)) {
+    public void deleteReceiptDetail(Integer receiptId) {
+        if (!receiptDetailsRepository.existsById(receiptId)) {
             throw new ResourceNotFoundException(
-                    "Receipt Detail with id " + id + " not found");
+                    "Receipt Detail with id " + receiptId + " not found");
         }
 
-        receiptDetailsRepository.deleteById(id);
+        receiptDetailsRepository.deleteById(receiptId);
     }
 
     /* ---------- READ ---------- */
     @Override
-    public ReceiptDetailsResponse getReceiptDetailById(Integer id) {
-        ReceiptDetails receiptDetail = receiptDetailsRepository.findById(id)
+    public ReceiptDetailsResponse getReceiptDetailById(Integer receiptId) {
+        ReceiptDetails receiptDetail = receiptDetailsRepository.findById(receiptId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Receipt Detail with id " + id + " not found"));
+                        "Receipt Detail with id " + receiptId + " not found"));
 
         return receiptDetailsMapper.toResponse(receiptDetail);
     }
@@ -77,5 +78,21 @@ public class ReceiptDetailsServiceImpl implements ReceiptDetailsService {
         return receiptDetailsRepository.findAll().stream()
                 .map(receiptDetailsMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReceiptDetailsResponse> getReceiptDetailsByReceipt(Integer receiptId) {
+        return receiptDetailsRepository.findByReceipt_Id(receiptId)
+                .stream()
+                .map(receiptDetailsMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<ReceiptDetailsResponse> getReceiptDetailsByProduct(Integer productId) {
+        return receiptDetailsRepository.findByProduct_Id(productId)
+                .stream()
+                .map(receiptDetailsMapper::toResponse)
+                .toList();
     }
 }

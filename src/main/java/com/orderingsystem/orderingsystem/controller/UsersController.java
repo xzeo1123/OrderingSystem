@@ -22,36 +22,36 @@ public class UsersController {
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody @Valid UsersRequest request) {
-        UsersResponse created = usersService.createUser(request);
+    public ResponseEntity<?> createUser(@RequestBody @Valid UsersRequest usersRequest) {
+        UsersResponse created = usersService.createUser(usersRequest);
         return ResponseHelper.created(created, "User created successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody @Valid UsersRequest request) {
-        UsersResponse updated = usersService.updateUser(id, request);
+    public ResponseEntity<?> updateUser(@PathVariable Integer userId, @RequestBody @Valid UsersRequest usersRequest) {
+        UsersResponse updated = usersService.updateUser(userId, usersRequest);
         return ResponseHelper.ok(updated, "User updated successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
     @PutMapping("/delete/{id}")
-    public ResponseEntity<?> softDeleteUser(@PathVariable Integer id) {
-        UsersResponse updated = usersService.softDeleteUser(id);
+    public ResponseEntity<?> softDeleteUser(@PathVariable Integer userId) {
+        UsersResponse updated = usersService.softDeleteUser(userId);
         return ResponseHelper.ok(updated, "User soft deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
-        usersService.deleteUser(id);
+    public ResponseEntity<?> deleteUser(@PathVariable Integer userId) {
+        usersService.deleteUser(userId);
         return ResponseHelper.deleted("User deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
-        UsersResponse user = usersService.getUserById(id);
+    public ResponseEntity<?> getUserById(@PathVariable Integer userId) {
+        UsersResponse user = usersService.getUserById(userId);
         return ResponseHelper.ok(user, "Get user by ID successfully");
     }
 
@@ -60,5 +60,12 @@ public class UsersController {
     public ResponseEntity<?> getAllUsers() {
         List<UsersResponse> users = usersService.getAllUsers();
         return ResponseHelper.ok(users, "Get list of users successfully");
+    }
+
+    @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
+    @GetMapping("/search")
+    public ResponseEntity<?> searchUsersByUsername(@RequestParam String username) {
+        List<UsersResponse> users = usersService.searchUsersByUsername(username);
+        return ResponseHelper.ok(users, "Search users successfully");
     }
 }

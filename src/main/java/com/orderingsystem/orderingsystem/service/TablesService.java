@@ -6,10 +6,10 @@ import com.orderingsystem.orderingsystem.dto.response.TablesResponse;
 import java.util.List;
 
 public interface TablesService {
-    TablesResponse createTable(TablesRequest request);
-    TablesResponse updateTable(Integer id, TablesRequest request);
-    TablesResponse softDeleteTable(Integer id);
-    void deleteTable(Integer id);
-    TablesResponse getTableById(Integer id);
+    TablesResponse createTable(TablesRequest tablesRequest);
+    TablesResponse updateTable(Integer id, TablesRequest tablesRequest);
+    TablesResponse softDeleteTable(Integer tableId);
+    void deleteTable(Integer tableId);
+    TablesResponse getTableById(Integer tableId);
     List<TablesResponse> getAllTables();
 }

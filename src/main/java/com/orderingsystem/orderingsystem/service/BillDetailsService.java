@@ -6,8 +6,10 @@ import com.orderingsystem.orderingsystem.dto.response.BillDetailsResponse;
 import java.util.List;
 
 public interface BillDetailsService {
-    BillDetailsResponse createBillDetail(BillDetailsRequest request);
-    void deleteBillDetail(Integer id);
-    BillDetailsResponse getBillDetailById(Integer id);
+    BillDetailsResponse createBillDetail(BillDetailsRequest billDetailsRequest);
+    void deleteBillDetail(Integer billId);
+    BillDetailsResponse getBillDetailById(Integer billId);
     List<BillDetailsResponse> getAllBillDetails();
+    List<BillDetailsResponse> getBillDetailsByBill(Integer billId);
+    List<BillDetailsResponse> getBillDetailsByProduct(Integer productId);
 }

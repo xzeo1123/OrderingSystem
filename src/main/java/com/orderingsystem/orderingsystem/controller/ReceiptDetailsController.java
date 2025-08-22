@@ -22,29 +22,43 @@ public class ReceiptDetailsController {
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PostMapping
-    public ResponseEntity<?> createReceiptDetail(@RequestBody @Valid ReceiptDetailsRequest request) {
-        ReceiptDetailsResponse created = receiptDetailsService.createReceiptDetail(request);
+    public ResponseEntity<?> createReceiptDetail(@RequestBody @Valid ReceiptDetailsRequest receiptDetailsRequest) {
+        ReceiptDetailsResponse created = receiptDetailsService.createReceiptDetail(receiptDetailsRequest);
         return ResponseHelper.created(created, "Receipt detail created successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteReceiptDetail(@PathVariable Integer id) {
-        receiptDetailsService.deleteReceiptDetail(id);
+    public ResponseEntity<?> deleteReceiptDetail(@PathVariable Integer receiptDetailId) {
+        receiptDetailsService.deleteReceiptDetail(receiptDetailId);
         return ResponseHelper.deleted("Receipt detail deleted successfully");
     }
 
-    @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getReceiptDetailById(@PathVariable Integer id) {
-        ReceiptDetailsResponse receiptdetail = receiptDetailsService.getReceiptDetailById(id);
-        return ResponseHelper.ok(receiptdetail, "Get receipt detail by ID successfully");
+    public ResponseEntity<?> getReceiptDetailById(@PathVariable Integer receiptDetailId) {
+        ReceiptDetailsResponse receiptDetails = receiptDetailsService.getReceiptDetailById(receiptDetailId);
+        return ResponseHelper.ok(receiptDetails, "Get receipt details by ID successfully");
+    }
+
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+    @GetMapping
+    public ResponseEntity<?> getAllReceiptDetails() {
+        List<ReceiptDetailsResponse> receiptDetails = receiptDetailsService.getAllReceiptDetails();
+        return ResponseHelper.ok(receiptDetails, "Get list of receipt details successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @GetMapping
-    public ResponseEntity<?> getAllReceiptDetails() {
-        List<ReceiptDetailsResponse> receiptdetails = receiptDetailsService.getAllReceiptDetails();
-        return ResponseHelper.ok(receiptdetails, "Get list of receipt details successfully");
+    @GetMapping("/filter/receipt")
+    public ResponseEntity<?> getReceiptDetailsByReceipt(@RequestParam Integer billId) {
+        List<ReceiptDetailsResponse> receiptDetails = receiptDetailsService.getReceiptDetailsByReceipt(billId);
+        return ResponseHelper.ok(receiptDetails, "Get receipt details by bill successfully");
+    }
+
+    @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
+    @GetMapping("/filter/product")
+    public ResponseEntity<?> getReceiptDetailsByProduct(@RequestParam Integer productId) {
+        List<ReceiptDetailsResponse> receiptDetails = receiptDetailsService.getReceiptDetailsByProduct(productId);
+        return ResponseHelper.ok(receiptDetails, "Get receipt details by product successfully");
     }
 }

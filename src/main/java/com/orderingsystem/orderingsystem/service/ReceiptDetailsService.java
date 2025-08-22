@@ -6,8 +6,10 @@ import com.orderingsystem.orderingsystem.dto.response.ReceiptDetailsResponse;
 import java.util.List;
 
 public interface ReceiptDetailsService {
-    ReceiptDetailsResponse createReceiptDetail(ReceiptDetailsRequest request);
-    void deleteReceiptDetail(Integer id);
-    ReceiptDetailsResponse getReceiptDetailById(Integer id);
+    ReceiptDetailsResponse createReceiptDetail(ReceiptDetailsRequest receiptDetailsRequest);
+    void deleteReceiptDetail(Integer receiptId);
+    ReceiptDetailsResponse getReceiptDetailById(Integer receiptId);
     List<ReceiptDetailsResponse> getAllReceiptDetails();
+    List<ReceiptDetailsResponse> getReceiptDetailsByReceipt(Integer receiptId);
+    List<ReceiptDetailsResponse> getReceiptDetailsByProduct(Integer productId);
 }

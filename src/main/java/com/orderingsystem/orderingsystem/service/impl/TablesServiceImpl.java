@@ -31,12 +31,12 @@ public class TablesServiceImpl implements TablesService {
     /* ---------- CREATE ---------- */
     @Override
     @CacheEvict(allEntries = true)
-    public TablesResponse createTable(TablesRequest request) {
-        request.setStatus(Status.ACTIVE);
+    public TablesResponse createTable(TablesRequest tablesRequest) {
+        tablesRequest.setStatus(Status.ACTIVE);
 
-        validate(request);
+        validate(tablesRequest);
 
-        Tables table = tablesMapper.toEntity(request);
+        Tables table = tablesMapper.toEntity(tablesRequest);
 
         return tablesMapper.toResponse(tablesRepository.save(table));
     }
@@ -45,13 +45,13 @@ public class TablesServiceImpl implements TablesService {
     @Override
     @CachePut(key = "#id")
     @CacheEvict(allEntries = true)
-    public TablesResponse updateTable(Integer id, TablesRequest request) {
-        Tables existingTable = tablesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Table with id " + id + " not found"));
+    public TablesResponse updateTable(Integer tableId, TablesRequest tablesRequest) {
+        Tables existingTable = tablesRepository.findById(tableId)
+                .orElseThrow(() -> new ResourceNotFoundException("Table with id " + tableId + " not found"));
 
-        validate(request);
+        validate(tablesRequest);
 
-        Tables updatedTable = tablesMapper.toEntity(request);
+        Tables updatedTable = tablesMapper.toEntity(tablesRequest);
         updatedTable.setId(existingTable.getId());
 
         return tablesMapper.toResponse(tablesRepository.save(updatedTable));
@@ -60,9 +60,9 @@ public class TablesServiceImpl implements TablesService {
     /* ---------- SOFT DELETE ---------- */
     @Override
     @CacheEvict(key = "#id", allEntries = true)
-    public TablesResponse softDeleteTable(Integer id) {
-        Tables table = tablesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Table " + id + " not found"));
+    public TablesResponse softDeleteTable(Integer tableId) {
+        Tables table = tablesRepository.findById(tableId)
+                .orElseThrow(() -> new ResourceNotFoundException("Table " + tableId + " not found"));
 
         table.setStatus(Status.INACTIVE);
 
@@ -72,20 +72,20 @@ public class TablesServiceImpl implements TablesService {
     /* ---------- DELETE ---------- */
     @Override
     @CacheEvict(key = "#id", allEntries = true)
-    public void deleteTable(Integer id) {
-        if (!tablesRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Table with id " + id + " not found");
+    public void deleteTable(Integer tableId) {
+        if (!tablesRepository.existsById(tableId)) {
+            throw new ResourceNotFoundException("Table with id " + tableId + " not found");
         }
 
-        tablesRepository.deleteById(id);
+        tablesRepository.deleteById(tableId);
     }
 
     /* ---------- READ ---------- */
     @Override
     @Cacheable(key = "#id")
-    public TablesResponse getTableById(Integer id) {
-        Tables table = tablesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Table with id " + id + " not found"));
+    public TablesResponse getTableById(Integer tableId) {
+        Tables table = tablesRepository.findById(tableId)
+                .orElseThrow(() -> new ResourceNotFoundException("Table with id " + tableId + " not found"));
         return tablesMapper.toResponse(table);
     }
 
@@ -99,8 +99,8 @@ public class TablesServiceImpl implements TablesService {
     }
 
     /* ---------- VALIDATE ---------- */
-    private void validate(TablesRequest request) {
-        if (tablesRepository.existsByNumber(request.getNumber())) {
+    private void validate(TablesRequest tablesRequest) {
+        if (tablesRepository.existsByNumber(tablesRequest.getNumber())) {
             throw new BusinessRuleException("Table number already exists");
         }
     }

@@ -8,6 +8,7 @@ import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
 import com.orderingsystem.orderingsystem.repository.CategoriesRepository;
 import com.orderingsystem.orderingsystem.repository.ProductsRepository;
+import com.orderingsystem.orderingsystem.service.CloudinaryService;
 import com.orderingsystem.orderingsystem.service.ProductsService;
 import com.orderingsystem.orderingsystem.mapping.ProductsMapper;
 import lombok.RequiredArgsConstructor;

@@ -9,7 +9,7 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class CloudinaryService {
+public class CloudinaryServiceImpl {
 
     private final Cloudinary cloudinary;
 

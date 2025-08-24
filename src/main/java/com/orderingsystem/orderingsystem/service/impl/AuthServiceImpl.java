@@ -10,6 +10,7 @@ import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.UsernameException;
 import com.orderingsystem.orderingsystem.repository.UsersRepository;
 import com.orderingsystem.orderingsystem.config.JwtTokenProvider;
+import com.orderingsystem.orderingsystem.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthServiceImpl implements AuthService {
 
     private final UsersRepository usersRepo;
     private final PasswordEncoder encoder;

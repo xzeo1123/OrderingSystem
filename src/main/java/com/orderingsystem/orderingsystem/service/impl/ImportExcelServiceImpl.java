@@ -38,7 +38,7 @@ public class ImportExcelServiceImpl implements ImportExcelService {
     private final ExcelHelper excelHelper;
 
     public ProductExcelImportResponse importProductFromExcel(MultipartFile file) throws IOException {
-        List<ProductExcelImportRequest> rows = excelHelper.readExcel(file);
+        List<ProductExcelImportRequest> rows = excelHelper.productsFromExcel(file);
 
         List<String> errors = validateRows(rows);
         if (!errors.isEmpty()) {

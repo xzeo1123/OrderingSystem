@@ -19,6 +19,7 @@ public class ImportExcelController {
 
     private final ImportExcelServiceImpl importService;
 
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
     @PostMapping("/products")
     public ResponseEntity<?> importProducts(@RequestParam("file") MultipartFile file) throws IOException, IOException {
         ProductExcelImportResponse summary = importService.importProductFromExcel(file);

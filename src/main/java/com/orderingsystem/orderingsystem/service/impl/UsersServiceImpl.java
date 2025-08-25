@@ -8,7 +8,6 @@ import com.orderingsystem.orderingsystem.entity.Users;
 import com.orderingsystem.orderingsystem.exception.BusinessRuleException;
 import com.orderingsystem.orderingsystem.exception.ResourceNotFoundException;
 import com.orderingsystem.orderingsystem.mapping.UsersMapper;
-import com.orderingsystem.orderingsystem.repository.BillsRepository;
 import com.orderingsystem.orderingsystem.repository.UsersRepository;
 import com.orderingsystem.orderingsystem.service.UsersService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,6 @@ import java.util.stream.Collectors;
 public class UsersServiceImpl implements UsersService {
 
     private final UsersRepository usersRepository;
-    private final BillsRepository billsRepository;
     private final PasswordEncoder passwordEncoder;
     private final UsersMapper usersMapper;
 

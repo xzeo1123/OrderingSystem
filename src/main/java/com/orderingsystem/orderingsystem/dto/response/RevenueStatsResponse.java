@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class RevenueStatsResponse {
-    private Double totalRevenue;
-    private Double totalImport;
+    private BigDecimal totalRevenue;
+    private BigDecimal totalImport;
 }

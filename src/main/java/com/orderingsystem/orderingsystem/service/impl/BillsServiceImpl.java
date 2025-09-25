@@ -132,7 +132,7 @@ public class BillsServiceImpl implements BillsService {
 
     @Override
     public List<BillsResponse> getBillsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return billsRepository.findByDatecreateBetween(startDate, endDate)
+        return billsRepository.findByDateCreateBetween(startDate, endDate)
                 .stream()
                 .map(billsMapper::toResponse)
                 .toList();

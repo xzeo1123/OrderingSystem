@@ -42,7 +42,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     /* ---------- UPDATE ---------- */
     @Override
-    @CachePut(key = "#id")
+    @CachePut(key = "#categoryId")
     @CacheEvict(allEntries = true)
     public CategoriesResponse updateCategory(Integer categoryId, CategoriesRequest categoriesRequest) {
         Categories category = categoriesRepository.findById(categoryId)
@@ -58,7 +58,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     /* ---------- SOFT DELETE ---------- */
     @Override
-    @CacheEvict(key = "#id", allEntries = true)
+    @CacheEvict(key = "#categoryId", allEntries = true)
     public CategoriesResponse softDeleteCategory(Integer categoryId) {
         Categories category = categoriesRepository.findById(categoryId)
             .orElseThrow(() -> new ResourceNotFoundException("Category " + categoryId + " not found"));
@@ -70,7 +70,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     /* ---------- DELETE ---------- */
     @Override
-    @CacheEvict(key = "#id", allEntries = true)
+    @CacheEvict(key = "#categoryId", allEntries = true)
     public void deleteCategory(Integer categoryId) {
         if (!categoriesRepository.existsById(categoryId)) {
             throw new ResourceNotFoundException("Category with id " + categoryId + " not found");
@@ -81,7 +81,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     /* ---------- READ ---------- */
     @Override
-    @Cacheable(key = "#id")
+    @Cacheable(key = "#categoryId")
     public CategoriesResponse getCategoryById(Integer categoryId) {
         Categories category = categoriesRepository.findById(categoryId)
             .orElseThrow(() -> new ResourceNotFoundException("Category with id " + categoryId + " not found"));

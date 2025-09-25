@@ -28,28 +28,28 @@ public class CategoriesController {
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @PutMapping("/{id}")
+    @PutMapping("/{categoryId}")
     public ResponseEntity<?> updateCategory(@PathVariable Integer categoryId, @RequestBody @Valid CategoriesRequest categoriesRequest) {
         CategoriesResponse updated = categoriesService.updateCategory(categoryId, categoriesRequest);
         return ResponseHelper.ok(updated, "Category updated successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @PutMapping("/delete/{id}")
+    @PutMapping("/delete/{categoryId}")
     public ResponseEntity<?> softDeleteCategory(@PathVariable Integer categoryId) {
         CategoriesResponse updated = categoriesService.softDeleteCategory(categoryId);
         return ResponseHelper.ok(updated, "Category soft deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{categoryId}")
     public ResponseEntity<?> deleteCategory(@PathVariable Integer categoryId) {
         categoriesService.deleteCategory(categoryId);
         return ResponseHelper.deleted("Category deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @GetMapping("/{id}")
+    @GetMapping("/{categoryId}")
     public ResponseEntity<?> getCategorieById(@PathVariable Integer categoryId) {
         CategoriesResponse category = categoriesService.getCategoryById(categoryId);
         return ResponseHelper.ok(category, "Get category by ID successfully");

@@ -28,14 +28,14 @@ public class ReceiptDetailsController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{receiptDetailsRequest}")
     public ResponseEntity<?> deleteReceiptDetail(@PathVariable Integer receiptDetailId) {
         receiptDetailsService.deleteReceiptDetail(receiptDetailId);
         return ResponseHelper.deleted("Receipt detail deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @GetMapping("/{id}")
+    @GetMapping("/{receiptDetailsRequest}")
     public ResponseEntity<?> getReceiptDetailById(@PathVariable Integer receiptDetailId) {
         ReceiptDetailsResponse receiptDetails = receiptDetailsService.getReceiptDetailById(receiptDetailId);
         return ResponseHelper.ok(receiptDetails, "Get receipt details by ID successfully");

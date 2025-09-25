@@ -31,28 +31,28 @@ public class BillsController {
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @PutMapping("/{id}")
+    @PutMapping("/{billId}")
     public ResponseEntity<?> updateBill(@PathVariable Integer billId, @RequestBody @Valid BillsRequest billsRequest) {
         BillsResponse updated = billsService.updateBill(billId, billsRequest);
         return ResponseHelper.ok(updated, "Bill updated successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @PutMapping("/delete/{id}")
+    @PutMapping("/delete/{billId}")
     public ResponseEntity<?> softDeleteBill(@PathVariable Integer billId) {
         BillsResponse updated = billsService.softDeleteBill(billId);
         return ResponseHelper.ok(updated, "Bill soft deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{billId}")
     public ResponseEntity<?> deleteBill(@PathVariable Integer billId) {
         billsService.deleteBill(billId);
         return ResponseHelper.deleted("Bill deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @GetMapping("/{id}")
+    @GetMapping("/{billId}")
     public ResponseEntity<?> getBillById(@PathVariable Integer billId) {
         BillsResponse bill = billsService.getBillById(billId);
         return ResponseHelper.ok(bill, "Get bill by ID successfully");

@@ -3,12 +3,13 @@ package com.orderingsystem.orderingsystem.repository;
 import com.orderingsystem.orderingsystem.dto.response.BillUserStatsResponse;
 import com.orderingsystem.orderingsystem.dto.response.TopProductStatsResponse;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StatsRepository {
-    Double getRevenueFromBills(LocalDateTime start, LocalDateTime end);
-    Double getRevenueFromReceipts(LocalDateTime start, LocalDateTime end);
+    BigDecimal getRevenueFromBills(LocalDateTime start, LocalDateTime end);
+    BigDecimal getRevenueFromReceipts(LocalDateTime start, LocalDateTime end);
 
     List<TopProductStatsResponse> getTopSellingProducts(LocalDateTime start, LocalDateTime end, int limit);
     List<TopProductStatsResponse> getTopProfitableProducts(LocalDateTime start, LocalDateTime end, int limit);

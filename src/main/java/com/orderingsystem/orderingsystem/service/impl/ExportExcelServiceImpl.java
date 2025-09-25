@@ -48,7 +48,7 @@ public class ExportExcelServiceImpl implements ExportExcelService {
         ByteArrayInputStream in = excelHelper.categoriesToExcel(categories);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=products.xlsx");
+        headers.add("Content-Disposition", "attachment; filename=categories.xlsx");
 
         return ResponseEntity
                 .ok()
@@ -63,7 +63,7 @@ public class ExportExcelServiceImpl implements ExportExcelService {
         ByteArrayInputStream in = excelHelper.usersToExcel(users);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=products.xlsx");
+        headers.add("Content-Disposition", "attachment; filename=users.xlsx");
 
         return ResponseEntity
                 .ok()
@@ -78,7 +78,7 @@ public class ExportExcelServiceImpl implements ExportExcelService {
         ByteArrayInputStream in = excelHelper.tablesToExcel(tables);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=products.xlsx");
+        headers.add("Content-Disposition", "attachment; filename=tables.xlsx");
 
         return ResponseEntity
                 .ok()
@@ -93,7 +93,7 @@ public class ExportExcelServiceImpl implements ExportExcelService {
         ByteArrayInputStream in = excelHelper.billsToExcel(bills);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=products.xlsx");
+        headers.add("Content-Disposition", "attachment; filename=bills.xlsx");
 
         return ResponseEntity
                 .ok()
@@ -108,7 +108,7 @@ public class ExportExcelServiceImpl implements ExportExcelService {
         ByteArrayInputStream in = excelHelper.receiptsToExcel(receipts);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=products.xlsx");
+        headers.add("Content-Disposition", "attachment; filename=receipts.xlsx");
 
         return ResponseEntity
                 .ok()

@@ -43,7 +43,7 @@ public class TablesServiceImpl implements TablesService {
 
     /* ---------- UPDATE ---------- */
     @Override
-    @CachePut(key = "#id")
+    @CachePut(key = "#tableId")
     @CacheEvict(allEntries = true)
     public TablesResponse updateTable(Integer tableId, TablesRequest tablesRequest) {
         Tables existingTable = tablesRepository.findById(tableId)
@@ -59,7 +59,7 @@ public class TablesServiceImpl implements TablesService {
 
     /* ---------- SOFT DELETE ---------- */
     @Override
-    @CacheEvict(key = "#id", allEntries = true)
+    @CacheEvict(key = "#tableId", allEntries = true)
     public TablesResponse softDeleteTable(Integer tableId) {
         Tables table = tablesRepository.findById(tableId)
                 .orElseThrow(() -> new ResourceNotFoundException("Table " + tableId + " not found"));
@@ -71,7 +71,7 @@ public class TablesServiceImpl implements TablesService {
 
     /* ---------- DELETE ---------- */
     @Override
-    @CacheEvict(key = "#id", allEntries = true)
+    @CacheEvict(key = "#tableId", allEntries = true)
     public void deleteTable(Integer tableId) {
         if (!tablesRepository.existsById(tableId)) {
             throw new ResourceNotFoundException("Table with id " + tableId + " not found");
@@ -82,7 +82,7 @@ public class TablesServiceImpl implements TablesService {
 
     /* ---------- READ ---------- */
     @Override
-    @Cacheable(key = "#id")
+    @Cacheable(key = "#tableId")
     public TablesResponse getTableById(Integer tableId) {
         Tables table = tablesRepository.findById(tableId)
                 .orElseThrow(() -> new ResourceNotFoundException("Table with id " + tableId + " not found"));

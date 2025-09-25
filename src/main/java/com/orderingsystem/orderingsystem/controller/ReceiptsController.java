@@ -31,28 +31,28 @@ public class ReceiptsController {
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @PutMapping("/{id}")
+    @PutMapping("/{receiptId}")
     public ResponseEntity<?> updateReceipt(@PathVariable Integer receiptId, @RequestBody @Valid ReceiptsRequest receiptsRequest) {
         ReceiptsResponse updated = receiptsService.updateReceipt(receiptId, receiptsRequest);
         return ResponseHelper.ok(updated, "Receipt updated successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @PutMapping("/delete/{id}")
+    @PutMapping("/delete/{receiptId}")
     public ResponseEntity<?> softDeleteBill(@PathVariable Integer receiptId) {
         ReceiptsResponse updated = receiptsService.softDeleteBill(receiptId);
         return ResponseHelper.ok(updated, "Receipt soft deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{receiptId}")
     public ResponseEntity<?> deleteReceipt(@PathVariable Integer receiptId) {
         receiptsService.deleteReceipt(receiptId);
         return ResponseHelper.deleted("Receipt deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @GetMapping("/{id}")
+    @GetMapping("/{receiptId}")
     public ResponseEntity<?> getReceiptById(@PathVariable Integer receiptId) {
         ReceiptsResponse receipt = receiptsService.getReceiptById(receiptId);
         return ResponseHelper.ok(receipt, "Get receipt by ID successfully");

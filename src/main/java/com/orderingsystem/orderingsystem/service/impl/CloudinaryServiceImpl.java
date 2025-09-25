@@ -2,6 +2,7 @@ package com.orderingsystem.orderingsystem.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.orderingsystem.orderingsystem.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class CloudinaryServiceImpl {
+public class CloudinaryServiceImpl implements CloudinaryService {
 
     private final Cloudinary cloudinary;
 

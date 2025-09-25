@@ -90,7 +90,7 @@ public class ReceiptsServiceImpl implements ReceiptsService {
 
     @Override
     public List<ReceiptsResponse> getReceiptsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return receiptsRepository.findByDatecreateBetween(startDate, endDate)
+        return receiptsRepository.findByDateCreateBetween(startDate, endDate)
                 .stream()
                 .map(receiptMapper::toResponse)
                 .toList();

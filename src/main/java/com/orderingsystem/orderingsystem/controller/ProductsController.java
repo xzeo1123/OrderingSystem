@@ -29,28 +29,28 @@ public class ProductsController {
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @PutMapping("/{id}")
+    @PutMapping("/{productId}")
     public ResponseEntity<?> updateProduct(@PathVariable Integer productId, @RequestBody @Valid ProductsRequest productsRequest) {
         ProductsResponse updated = productsService.updateProduct(productId, productsRequest);
         return ResponseHelper.ok(updated, "Product updated successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @PutMapping("/delete/{id}")
+    @PutMapping("/delete/{productId}")
     public ResponseEntity<?> softDeleteProduct(@PathVariable Integer productId) {
         ProductsResponse updated = productsService.softDeleteProduct(productId);
         return ResponseHelper.ok(updated, "Product soft deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
         productsService.deleteProduct(productId);
         return ResponseHelper.deleted("Product deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @GetMapping("/{id}")
+    @GetMapping("/{productId}")
     public ResponseEntity<?> getProductById(@PathVariable Integer productId) {
         ProductsResponse product = productsService.getProductById(productId);
         return ResponseHelper.ok(product, "Get product by ID successfully");
@@ -70,7 +70,7 @@ public class ProductsController {
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @GetMapping("/search")
+    @GetMapping("/searchbyname")
     public ResponseEntity<?> searchProductsByName(@RequestParam String productName) {
         List<ProductsResponse> products = productsService.searchProductsByName(productName);
         return ResponseHelper.ok(products, "Search products successfully");

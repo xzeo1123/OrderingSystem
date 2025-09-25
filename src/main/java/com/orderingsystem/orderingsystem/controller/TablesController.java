@@ -28,28 +28,28 @@ public class TablesController {
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @PutMapping("/{id}")
+    @PutMapping("/{tableId}")
     public ResponseEntity<?> updateTable(@PathVariable Integer tableId, @RequestBody @Valid TablesRequest tablesRequest) {
         TablesResponse updated = tablesService.updateTable(tableId, tablesRequest);
         return ResponseHelper.ok(updated, "Table updated successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @PutMapping("/delete/{id}")
+    @PutMapping("/delete/{tableId}")
     public ResponseEntity<?> softDeleteTable(@PathVariable Integer tableId) {
         TablesResponse updated = tablesService.softDeleteTable(tableId);
         return ResponseHelper.ok(updated, "Table soft deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{tableId}")
     public ResponseEntity<?> deleteTable(@PathVariable Integer tableId) {
         tablesService.deleteTable(tableId);
         return ResponseHelper.deleted("Table deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @GetMapping("/{id}")
+    @GetMapping("/{tableId}")
     public ResponseEntity<?> getTableById(@PathVariable Integer tableId) {
         TablesResponse table = tablesService.getTableById(tableId);
         return ResponseHelper.ok(table, "Get table by ID successfully");

@@ -28,14 +28,14 @@ public class BillDetailsController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{billDetailsId}")
     public ResponseEntity<?> deleteBillDetail(@PathVariable Integer billDetailsId) {
         billDetailsService.deleteBillDetail(billDetailsId);
         return ResponseHelper.deleted("Bill details deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
-    @GetMapping("/{id}")
+    @GetMapping("/{billDetailsId}")
     public ResponseEntity<?> getBillDetailById(@PathVariable Integer billDetailsId) {
         BillDetailsResponse billDetail = billDetailsService.getBillDetailById(billDetailsId);
         return ResponseHelper.ok(billDetail, "Get bill details by ID successfully");

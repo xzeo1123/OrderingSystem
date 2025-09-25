@@ -112,7 +112,7 @@ public class ProductsServiceImpl implements ProductsService {
         Products product = productsRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product " + productId + " not found"));
 
-        if (product.getImageId() != null && !product.getImageId().equals(cloudinaryProperties.getId())) {
+        if (!product.getImageId().equals(cloudinaryProperties.getId())) {
             try {
                 cloudinaryService.deleteImage(product.getImageId());
             } catch (Exception e) {

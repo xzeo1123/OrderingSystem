@@ -7,6 +7,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,26 +18,26 @@ public class StatsRepositoryImpl implements StatsRepository {
     private EntityManager entityManager;
 
     @Override
-    public Double getRevenueFromBills(LocalDateTime start, LocalDateTime end) {
+    public BigDecimal getRevenueFromBills(LocalDateTime start, LocalDateTime end) {
         String jpql = """
             SELECT SUM(b.total) FROM Bills b
-            WHERE (:start IS NULL OR b.datecreate >= :start)
-              AND (:end IS NULL OR b.datecreate <= :end)
+            WHERE (:start IS NULL OR b.dateCreate >= :start)
+              AND (:end IS NULL OR b.dateCreate <= :end)
         """;
-        return entityManager.createQuery(jpql, Double.class)
+        return entityManager.createQuery(jpql, BigDecimal.class)
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getSingleResult();
     }
 
     @Override
-    public Double getRevenueFromReceipts(LocalDateTime start, LocalDateTime end) {
+    public BigDecimal getRevenueFromReceipts(LocalDateTime start, LocalDateTime end) {
         String jpql = """
             SELECT SUM(r.total) FROM Receipts r
-            WHERE (:start IS NULL OR r.datecreate >= :start)
-              AND (:end IS NULL OR r.datecreate <= :end)
+            WHERE (:start IS NULL OR r.dateCreate >= :start)
+              AND (:end IS NULL OR r.dateCreate <= :end)
         """;
-        return entityManager.createQuery(jpql, Double.class)
+        return entityManager.createQuery(jpql, BigDecimal.class)
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getSingleResult();
@@ -51,8 +52,8 @@ public class StatsRepositoryImpl implements StatsRepository {
             FROM BillDetails d
             JOIN d.bill b
             JOIN d.product p
-            WHERE (:start IS NULL OR b.datecreate >= :start)
-              AND (:end IS NULL OR b.datecreate <= :end)
+            WHERE (:start IS NULL OR b.dateCreate >= :start)
+              AND (:end IS NULL OR b.dateCreate <= :end)
             GROUP BY p.id, p.name
             ORDER BY SUM(d.quantity) DESC
         """;
@@ -72,8 +73,8 @@ public class StatsRepositoryImpl implements StatsRepository {
             FROM BillDetails d
             JOIN d.bill b
             JOIN d.product p
-            WHERE (:start IS NULL OR b.datecreate >= :start)
-              AND (:end IS NULL OR b.datecreate <= :end)
+            WHERE (:start IS NULL OR b.dateCreate >= :start)
+              AND (:end IS NULL OR b.dateCreate <= :end)
             GROUP BY p.id, p.name
             ORDER BY SUM((p.salePrice - p.importPrice) * d.quantity) DESC
         """;
@@ -88,8 +89,8 @@ public class StatsRepositoryImpl implements StatsRepository {
     public Long countBills(LocalDateTime start, LocalDateTime end) {
         String jpql = """
             SELECT COUNT(b) FROM Bills b
-            WHERE (:start IS NULL OR b.datecreate >= :start)
-              AND (:end IS NULL OR b.datecreate <= :end)
+            WHERE (:start IS NULL OR b.dateCreate >= :start)
+              AND (:end IS NULL OR b.dateCreate <= :end)
         """;
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("start", start)
@@ -101,8 +102,8 @@ public class StatsRepositoryImpl implements StatsRepository {
     public Long countReceipts(LocalDateTime start, LocalDateTime end) {
         String jpql = """
             SELECT COUNT(r) FROM Receipts r
-            WHERE (:start IS NULL OR r.datecreate >= :start)
-              AND (:end IS NULL OR r.datecreate <= :end)
+            WHERE (:start IS NULL OR r.dateCreate >= :start)
+              AND (:end IS NULL OR r.dateCreate <= :end)
         """;
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("start", start)
@@ -118,8 +119,8 @@ public class StatsRepositoryImpl implements StatsRepository {
             )
             FROM Bills b
             JOIN b.user u
-            WHERE (:start IS NULL OR b.datecreate >= :start)
-              AND (:end IS NULL OR b.datecreate <= :end)
+            WHERE (:start IS NULL OR b.dateCreate >= :start)
+              AND (:end IS NULL OR b.dateCreate <= :end)
             GROUP BY u.id, u.username
             ORDER BY COUNT(b) DESC
         """;

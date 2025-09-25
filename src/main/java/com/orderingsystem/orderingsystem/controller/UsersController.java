@@ -28,28 +28,28 @@ public class UsersController {
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @PutMapping("/{id}")
+    @PutMapping("/{userId}")
     public ResponseEntity<?> updateUser(@PathVariable Integer userId, @RequestBody @Valid UsersRequest usersRequest) {
         UsersResponse updated = usersService.updateUser(userId, usersRequest);
         return ResponseHelper.ok(updated, "User updated successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @PutMapping("/delete/{id}")
+    @PutMapping("/delete/{userId}")
     public ResponseEntity<?> softDeleteUser(@PathVariable Integer userId) {
         UsersResponse updated = usersService.softDeleteUser(userId);
         return ResponseHelper.ok(updated, "User soft deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUser(@PathVariable Integer userId) {
         usersService.deleteUser(userId);
         return ResponseHelper.deleted("User deleted successfully");
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @GetMapping("/{id}")
+    @GetMapping("/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable Integer userId) {
         UsersResponse user = usersService.getUserById(userId);
         return ResponseHelper.ok(user, "Get user by ID successfully");

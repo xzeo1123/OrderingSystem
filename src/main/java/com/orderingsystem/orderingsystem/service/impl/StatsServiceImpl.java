@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -22,11 +23,11 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public RevenueStatsResponse getRevenueStats(StatsRequest request) {
-        Double billRevenue = statsRepository.getRevenueFromBills(request.getStartDate(), request.getEndDate());
-        Double receiptCost = statsRepository.getRevenueFromReceipts(request.getStartDate(), request.getEndDate());
+        BigDecimal billRevenue = statsRepository.getRevenueFromBills(request.getStartDate(), request.getEndDate());
+        BigDecimal receiptCost = statsRepository.getRevenueFromReceipts(request.getStartDate(), request.getEndDate());
         return new RevenueStatsResponse(
-                billRevenue != null ? billRevenue : 0.0,
-                receiptCost != null ? receiptCost : 0.0
+                billRevenue != null ? billRevenue : BigDecimal.ZERO,
+                receiptCost != null ? receiptCost : BigDecimal.ZERO
         );
     }
 

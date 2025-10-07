@@ -93,7 +93,7 @@ public class ProductsController {
     }
 
     @PreAuthorize("hasAnyRole('USER','STAFF','ADMIN')")
-    @GetMapping("/search")
+    @GetMapping("/filter")
     public ResponseEntity<?> searchProducts(
             @RequestParam(required = false) String productName,
             @RequestParam(required = false) Integer categoryId,

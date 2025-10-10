@@ -54,4 +54,11 @@ public class AuthController {
 
         return ResponseEntity.ok(new LoginResponse(newAccess, rt, username, role));
     }
+
+//    @PostMapping("/social-login")
+//    public ResponseEntity<?> socialLogin(@RequestBody @Valid SocialLoginRequest req) {
+//        LoginResponse res = authService.socialLogin(req);
+//        return ResponseHelper.ok(res, "Social login successful");
+//    }
+
 }

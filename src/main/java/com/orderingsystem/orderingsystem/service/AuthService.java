@@ -9,4 +9,5 @@ import org.springframework.security.authentication.AuthenticationManager;
 public interface AuthService {
     SignupResponse signup(SignUpRequest signUpRequest);
     LoginResponse login(LoginRequest req, AuthenticationManager authManager);
+//    LoginResponse socialLogin(SocialLoginRequest socialLoginRequest);
 }
